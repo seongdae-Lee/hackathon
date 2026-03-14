@@ -1,8 +1,9 @@
 using HealthGameCurator.Api.Middleware;
-using HealthGameCurator.Application.Services;
 using HealthGameCurator.Application.Interfaces;
+using HealthGameCurator.Application.Services;
 using HealthGameCurator.Infrastructure.Data;
 using HealthGameCurator.Infrastructure.Repositories;
+using HealthGameCurator.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -33,9 +34,14 @@ try
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(connectionString));
 
+    // Claude API - HttpClient 등록
+    builder.Services.AddHttpClient<IClaudeApiService, ClaudeApiService>();
+
     // 의존성 주입 등록
     builder.Services.AddScoped<IGameRepository, GameRepository>();
-    builder.Services.AddScoped<GameService>();
+    builder.Services.AddScoped<IGameService, GameService>();
+    builder.Services.AddScoped<IGameRecommendationService, GameRecommendationService>();
+    builder.Services.AddScoped<IGameDataCollectorService, GameDataCollectorService>();
 
     // CORS - 프론트엔드 도메인 명시적 허용 (와일드카드 금지)
     builder.Services.AddCors(options =>

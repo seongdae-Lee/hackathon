@@ -6,14 +6,16 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - '5000:8080'
+      - '5000:5000'
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/healthgamecurator.db
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Data Source=/data/healthgamecurator.db
+      - ClaudeApi__ApiKey=${CLAUDE_API_KEY:-}
+      - ClaudeApi__Model=claude-sonnet-4-6
     volumes:
-      - db_data:/app/data
-    networks:
-      - app_network
+      - backend_data:/data
+    restart: unless-stopped
 
   frontend:
     build:
@@ -22,15 +24,10 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
     depends_on:
       - backend
-    networks:
-      - app_network
-
-networks:
-  app_network:
-    driver: bridge
+    restart: unless-stopped
 
 volumes:
-  db_data:
+  backend_data:

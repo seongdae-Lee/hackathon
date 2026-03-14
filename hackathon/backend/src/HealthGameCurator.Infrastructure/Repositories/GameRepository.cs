@@ -89,4 +89,17 @@ public class GameRepository : IGameRepository
             .Take(count)
             .ToListAsync();
     }
+
+    public async Task ReplaceHealthTagsAsync(int gameId, List<HealthTag> newTags)
+    {
+        // 기존 태그 삭제
+        var existing = await _context.HealthTags
+            .Where(t => t.GameId == gameId)
+            .ToListAsync();
+        _context.HealthTags.RemoveRange(existing);
+
+        // 새 태그 추가
+        await _context.HealthTags.AddRangeAsync(newTags);
+        await _context.SaveChangesAsync();
+    }
 }

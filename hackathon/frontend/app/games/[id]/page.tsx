@@ -6,6 +6,8 @@ import { fetchGame, fetchSimilarGames } from '@/lib/api'
 import GameCard from '@/components/game/GameCard'
 import GameCardSkeleton from '@/components/game/GameCardSkeleton'
 import HealthTagBadge from '@/components/game/HealthTagBadge'
+import AiAnalysisBadge from '@/components/game/AiAnalysisBadge'
+import ErrorFallback from '@/components/ui/ErrorFallback'
 import { useState } from 'react'
 
 // 다운로드 수를 읽기 쉬운 형식으로 변환
@@ -52,15 +54,12 @@ export default function GameDetailPage() {
 
   if (isError) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <p className="text-4xl mb-3">😢</p>
-        <p className="text-gray-500">게임 정보를 불러오는데 실패했습니다.</p>
-        <button
-          onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"
-        >
-          뒤로가기
-        </button>
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <ErrorFallback
+          message="게임 정보를 불러오는데 실패했습니다."
+          hint="백엔드 서버가 실행 중인지 확인해주세요."
+          onRetry={() => router.back()}
+        />
       </div>
     )
   }
@@ -68,20 +67,20 @@ export default function GameDetailPage() {
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-24 mb-6" />
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <div className="h-5 bg-gray-100 rounded w-20 mb-6" />
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <div className="flex gap-4 mb-6">
-            <div className="w-20 h-20 bg-gray-200 rounded-2xl flex-shrink-0" />
+            <div className="w-16 h-16 bg-gray-100 rounded-xl flex-shrink-0" />
             <div className="flex-1">
-              <div className="h-6 bg-gray-200 rounded w-1/2 mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-1/4" />
+              <div className="h-5 bg-gray-100 rounded w-1/2 mb-2" />
+              <div className="h-3 bg-gray-100 rounded w-1/3 mb-2" />
+              <div className="h-3 bg-gray-100 rounded w-1/4" />
             </div>
           </div>
           <div className="space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-full" />
-            <div className="h-4 bg-gray-200 rounded w-5/6" />
-            <div className="h-4 bg-gray-200 rounded w-4/5" />
+            <div className="h-3 bg-gray-100 rounded w-full" />
+            <div className="h-3 bg-gray-100 rounded w-5/6" />
+            <div className="h-3 bg-gray-100 rounded w-4/5" />
           </div>
         </div>
       </div>
@@ -95,44 +94,45 @@ export default function GameDetailPage() {
       {/* 뒤로가기 */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6 group"
+        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 mb-6 group transition-colors"
       >
         <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
         뒤로가기
       </button>
 
       {/* 게임 기본 정보 */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4">
         <div className="flex items-start gap-4 mb-5">
           {/* 게임 아이콘 */}
-          <div className="w-20 h-20 flex-shrink-0 rounded-2xl bg-gray-100 flex items-center justify-center text-4xl overflow-hidden">
+          <div className="w-16 h-16 flex-shrink-0 rounded-xl bg-gray-50 flex items-center justify-center text-3xl">
             {getCategoryEmoji(game.category)}
           </div>
 
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{game.name}</h1>
-            <p className="text-gray-500 text-sm mb-2">{game.developer}</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-block px-2.5 py-1 bg-green-50 text-green-700 text-xs rounded-full font-medium">
+            <h1 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">{game.name}</h1>
+            <p className="text-gray-400 text-sm mb-2">{game.developer}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-block px-2 py-0.5 bg-gray-50 text-gray-500 text-xs rounded-md border border-gray-100 font-medium">
                 {game.category}
               </span>
-              <span className="text-sm text-yellow-500">⭐ {game.rating.toFixed(1)}</span>
-              <span className="text-sm text-gray-400">다운로드 {formatDownloadCount(game.downloadCount)}</span>
+              <span className="text-sm text-amber-500">★ {game.rating.toFixed(1)}</span>
+              <span className="text-sm text-gray-300">·</span>
+              <span className="text-sm text-gray-400">{formatDownloadCount(game.downloadCount)}</span>
             </div>
           </div>
         </div>
 
         {/* 게임 설명 */}
-        <p className="text-gray-700 leading-relaxed mb-5">{game.description}</p>
+        <p className="text-gray-500 leading-relaxed text-sm mb-5">{game.description}</p>
 
         {/* 스토어 바로가기 버튼 */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           {game.playStoreUrl && (
             <a
               href={game.playStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-700 transition-colors"
             >
               <span>▶</span>
               <span>Google Play</span>
@@ -143,52 +143,67 @@ export default function GameDetailPage() {
               href={game.appStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-700 transition-colors"
             >
               <span>🍎</span>
               <span>App Store</span>
             </a>
           )}
           {!game.playStoreUrl && !game.appStoreUrl && (
-            <p className="text-sm text-gray-400 italic">스토어 링크 없음 (전용 기기 필요)</p>
+            <p className="text-xs text-gray-300 italic">스토어 링크 없음 (전용 기기 필요)</p>
           )}
         </div>
       </div>
 
       {/* AI 건강 효과 태그 */}
       {game.healthTags.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            🤖 AI 건강 효과 분석
-          </h2>
-          <div className="space-y-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-gray-700">AI 건강 효과 분석</h2>
+            {/* 전체 분석 출처 표시 */}
+            {game.healthTags.some(t => t.isAiAnalyzed) ? (
+              <span className="text-xs text-violet-400 flex items-center gap-1">
+                <span>✨</span> Claude AI 분석 완료
+              </span>
+            ) : (
+              <span className="text-xs text-gray-300">수동 태그</span>
+            )}
+          </div>
+          <div className="space-y-3">
             {game.healthTags.map((tag) => (
-              <div key={tag.id} className="border border-gray-100 rounded-xl p-4">
+              <div key={tag.id} className="border border-gray-50 rounded-xl p-4 bg-gray-50/50">
                 <div className="flex items-center justify-between mb-2">
                   <HealthTagBadge tag={tag} size="md" />
-                  <span className="text-sm text-gray-500">신뢰도 {Math.round(tag.confidence * 100)}%</span>
+                  <div className="flex items-center gap-2">
+                    <AiAnalysisBadge isAiAnalyzed={tag.isAiAnalyzed} />
+                    <span className="text-xs text-gray-400">신뢰도 {Math.round(tag.confidence * 100)}%</span>
+                  </div>
                 </div>
 
-                {/* 신뢰도 바 */}
-                <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
+                {/* 신뢰도 바 - CSS custom property로 동적 너비 설정 */}
+                <div className="w-full bg-gray-200 rounded-full h-1 mb-3">
                   <div
-                    className="bg-green-500 h-1.5 rounded-full transition-all"
-                    style={{ width: `${Math.round(tag.confidence * 100)}%` }}
+                    className="bg-gray-400 h-1 rounded-full transition-all [width:var(--confidence)]"
+                    style={{ '--confidence': `${Math.round(tag.confidence * 100)}%` } as React.CSSProperties}
                   />
                 </div>
 
                 {/* AI 설명 펼침 */}
-                <button
-                  onClick={() => setExpandedTagId(expandedTagId === tag.id ? null : tag.id)}
-                  className="text-sm text-green-600 hover:text-green-700 flex items-center gap-1"
-                >
-                  <span>{expandedTagId === tag.id ? '▲' : '▼'}</span>
-                  <span>AI 분석 근거 {expandedTagId === tag.id ? '접기' : '보기'}</span>
-                </button>
-                {expandedTagId === tag.id && (
-                  <p className="mt-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-3 leading-relaxed">
-                    {tag.aiDescription}
-                  </p>
+                {tag.aiDescription && (
+                  <>
+                    <button
+                      onClick={() => setExpandedTagId(expandedTagId === tag.id ? null : tag.id)}
+                      className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 transition-colors"
+                    >
+                      <span>{expandedTagId === tag.id ? '▲' : '▼'}</span>
+                      <span>{tag.isAiAnalyzed ? 'AI 분석 근거' : '설명'} {expandedTagId === tag.id ? '접기' : '보기'}</span>
+                    </button>
+                    {expandedTagId === tag.id && (
+                      <p className="mt-2 text-xs text-gray-500 bg-white rounded-lg p-3 leading-relaxed border border-gray-100">
+                        {tag.aiDescription}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             ))}
@@ -197,10 +212,8 @@ export default function GameDetailPage() {
       )}
 
       {/* 유사 게임 추천 */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
-          🎮 유사 게임 추천
-        </h2>
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <h2 className="text-sm font-semibold text-gray-700 mb-4">유사 게임 추천</h2>
         {isSimilarLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -208,7 +221,7 @@ export default function GameDetailPage() {
             ))}
           </div>
         ) : similarGames.length === 0 ? (
-          <p className="text-gray-400 text-sm">유사한 게임이 없습니다.</p>
+          <p className="text-gray-300 text-sm">유사한 게임이 없습니다.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {similarGames.map((similarGame) => (

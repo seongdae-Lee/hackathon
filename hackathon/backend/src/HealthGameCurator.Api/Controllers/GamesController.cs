@@ -1,5 +1,5 @@
 using HealthGameCurator.Application.DTOs;
-using HealthGameCurator.Application.Services;
+using HealthGameCurator.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthGameCurator.Api.Controllers;
@@ -11,11 +11,15 @@ namespace HealthGameCurator.Api.Controllers;
 [Route("api/[controller]")]
 public class GamesController : ControllerBase
 {
-    private readonly GameService _gameService;
+    private readonly IGameService _gameService;
+    private readonly IGameRecommendationService _recommendationService;
 
-    public GamesController(GameService gameService)
+    public GamesController(
+        IGameService gameService,
+        IGameRecommendationService recommendationService)
     {
         _gameService = gameService;
+        _recommendationService = recommendationService;
     }
 
     /// <summary>
@@ -28,6 +32,10 @@ public class GamesController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
+        // [Suggestion-01] 입력값 유효성 검사
+        if (page <= 0) page = 1;
+        if (pageSize <= 0 || pageSize > 100) pageSize = 20;
+
         var query = new GameListQuery(category, sort, page, pageSize);
         var result = await _gameService.GetGamesAsync(query);
         return Ok(ApiResponse<PagedResult<GameDto>>.Ok(result));
@@ -52,7 +60,12 @@ public class GamesController : ControllerBase
     [HttpGet("{id:int}/similar")]
     public async Task<ActionResult<ApiResponse<List<GameDto>>>> GetSimilarGames(int id)
     {
-        var games = await _gameService.GetSimilarGamesAsync(id);
+        // [Suggestion-03] 게임 존재 여부 먼저 확인
+        var game = await _gameService.GetGameByIdAsync(id);
+        if (game is null)
+            return NotFound(ApiResponse<List<GameDto>>.Fail("게임을 찾을 수 없습니다.", "GAME_NOT_FOUND"));
+
+        var games = await _recommendationService.GetSimilarGamesAsync(id);
         return Ok(ApiResponse<List<GameDto>>.Ok(games));
     }
 }

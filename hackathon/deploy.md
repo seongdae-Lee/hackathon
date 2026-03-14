@@ -1,7 +1,80 @@
-# 배포 및 검증 가이드 - Sprint 1
+# 배포 및 검증 가이드 - Sprint 2
 
-> **Sprint 1 완료일:** 2026-03-14
-> **브랜치:** sprint1
+> **Sprint 2 작업일:** 2026-03-15
+> **브랜치:** sprint2
+
+---
+
+## Sprint 2 신규 기능
+
+- Claude AI API 연동 - 게임 건강 효과 자동 태깅
+- 게임 데이터 수집 파이프라인 (Mock Fallback 지원)
+- 유사 게임 추천 개선 (Confidence 가중치 유사도)
+- 프론트엔드 AI 배지 UI 개선 (AiAnalysisBadge)
+- ErrorFallback 공통 컴포넌트
+- Docker Compose 설정
+
+---
+
+## Sprint 2 자동 검증 완료 항목
+
+- ✅ `dotnet build` - 경고 0, 오류 0
+- ✅ `dotnet test` - 17개 단위 테스트 모두 통과
+  - GameService 테스트 (8개: 기존 5개 + AI 분석 3개 추가)
+  - ClaudeApiServiceTests (3개)
+  - GameRecommendationServiceTests (4개)
+  - GameDataCollectorServiceTests (2개)
+
+---
+
+## Sprint 2 수동 검증 필요 항목
+
+### Claude API 키 설정 및 AI 분석 검증
+
+```bash
+# appsettings.json에 API 키 설정 후
+# 1. 백엔드 실행
+cd backend
+dotnet run --project src/HealthGameCurator.Api --urls "http://localhost:5000"
+
+# 2. 단일 게임 AI 분석 트리거
+curl -X POST http://localhost:5000/api/admin/analyze/1
+
+# 3. 전체 게임 일괄 분석
+curl -X POST http://localhost:5000/api/admin/analyze/all
+
+# 4. Mock 게임 데이터 수집
+curl -X POST "http://localhost:5000/api/admin/collect?maxCount=5"
+```
+
+- ⬜ Admin API: `POST /api/admin/analyze/{id}` - AI 분석 트리거 → DB에 `isAiAnalyzed=true` 확인
+- ⬜ Admin API: `POST /api/admin/analyze/all` - 전체 일괄 분석 완료 확인
+- ⬜ Admin API: `POST /api/admin/collect` - Mock 게임 수집 → 신규 게임 DB 저장 확인
+
+### 프론트엔드 AI 태그 UI 검증
+
+- ⬜ 상세 페이지 - AI 분석 배지(`✨ AI 분석` / `📋 수동 태그`) 표시 확인
+- ⬜ 상세 페이지 - "Claude AI 분석 완료" 헤더 표시 (isAiAnalyzed=true 게임)
+- ⬜ 상세 페이지 - AI 분석 근거 펼침/접기 정상 동작 확인
+- ⬜ 홈 페이지 - ErrorFallback UI 표시 (백엔드 미실행 시)
+
+### Docker 환경 검증
+
+```bash
+# .env 파일 생성
+echo "CLAUDE_API_KEY=your_api_key_here" > .env
+
+# Docker Compose 빌드 및 실행
+docker compose up --build
+```
+
+- ⬜ `docker compose up --build` - 전체 스택 빌드 성공 확인
+- ⬜ `http://localhost:3000` 프론트엔드 접속 확인
+- ⬜ `http://localhost:5000/swagger` 백엔드 Swagger 접속 확인
+
+---
+
+## Sprint 1 기록 (2026-03-14, 브랜치: sprint1)
 
 ---
 
@@ -103,6 +176,8 @@ npm run dev
 | `sort` | string | `popular` | 정렬 (`popular`, `rating`, `latest`) |
 | `page` | int | `1` | 페이지 번호 |
 | `pageSize` | int | `12` | 페이지당 항목 수 |
+
+상세 API 명세는 [docs/API.md](docs/API.md)를 참고하세요.
 
 ---
 
