@@ -42,6 +42,8 @@ try
     builder.Services.AddScoped<IGameService, GameService>();
     builder.Services.AddScoped<IGameRecommendationService, GameRecommendationService>();
     builder.Services.AddScoped<IGameDataCollectorService, GameDataCollectorService>();
+    builder.Services.AddScoped<IGameSearchService, GameSearchService>();
+    builder.Services.AddScoped<IHealthGoalRecommendService, HealthGoalRecommendService>();
 
     // CORS - 프론트엔드 도메인 명시적 허용 (와일드카드 금지)
     builder.Services.AddCors(options =>

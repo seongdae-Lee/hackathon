@@ -1,6 +1,6 @@
 # API 명세 - 헬스케어 게이미피케이션 큐레이터
 
-> **버전:** Sprint 2 (2026-03-15)
+> **버전:** Sprint 3 (2026-03-15)
 > **Base URL:** `http://localhost:5000/api`
 > **Swagger UI:** `http://localhost:5000/swagger`
 
@@ -261,6 +261,68 @@ RapidAPI 연동 실패 시 Mock 데이터로 자동 Fallback합니다.
     "밸런스",
     "피트니스"
   ]
+}
+```
+
+---
+
+### `GET /api/games/search` - 게임 키워드 검색
+
+게임명, 카테고리, 건강 효과 태그에서 키워드 검색.
+2글자 미만 키워드는 빈 배열 반환.
+
+#### 쿼리 파라미터
+
+| 파라미터 | 타입 | 설명 |
+|---------|------|------|
+| `q` | string | 검색 키워드 (2글자 이상) |
+
+#### 응답 예시
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "game": { ...GameDto },
+      "matchedFields": ["name", "category"],
+      "matchedKeyword": "달리기"
+    }
+  ]
+}
+```
+
+---
+
+### `POST /api/recommend` - 건강 목표 기반 맞춤 추천
+
+선택한 건강 목표에 맞는 게임을 추천하고, Claude AI 추천 이유 텍스트를 생성합니다.
+
+#### 요청 Body
+
+```json
+{
+  "healthGoals": ["심폐기능", "스트레스해소"]
+}
+```
+
+유효한 목표값: `심폐기능`, `근력강화`, `스트레스해소`, `인지개선`, `반응훈련`
+
+#### 응답 예시
+
+```json
+{
+  "success": true,
+  "data": {
+    "selectedGoals": ["심폐기능", "스트레스해소"],
+    "games": [
+      {
+        "game": { ...GameDto },
+        "matchScore": 0.85,
+        "recommendReason": "이 게임은 달리기 동작으로 심폐 기능을 강화하며..."
+      }
+    ]
+  }
 }
 ```
 

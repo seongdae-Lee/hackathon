@@ -13,13 +13,16 @@ public class GamesController : ControllerBase
 {
     private readonly IGameService _gameService;
     private readonly IGameRecommendationService _recommendationService;
+    private readonly IGameSearchService _searchService;
 
     public GamesController(
         IGameService gameService,
-        IGameRecommendationService recommendationService)
+        IGameRecommendationService recommendationService,
+        IGameSearchService searchService)
     {
         _gameService = gameService;
         _recommendationService = recommendationService;
+        _searchService = searchService;
     }
 
     /// <summary>
@@ -52,6 +55,17 @@ public class GamesController : ControllerBase
             return NotFound(ApiResponse<GameDto>.Fail("게임을 찾을 수 없습니다.", "GAME_NOT_FOUND"));
 
         return Ok(ApiResponse<GameDto>.Ok(game));
+    }
+
+    /// <summary>
+    /// 게임 키워드 검색 (게임명, 카테고리, 건강 효과 태그)
+    /// </summary>
+    [HttpGet("search")]
+    public async Task<ActionResult<ApiResponse<List<SearchResultDto>>>> SearchGames(
+        [FromQuery] string? q = null)
+    {
+        var results = await _searchService.SearchGamesAsync(q ?? string.Empty);
+        return Ok(ApiResponse<List<SearchResultDto>>.Ok(results));
     }
 
     /// <summary>

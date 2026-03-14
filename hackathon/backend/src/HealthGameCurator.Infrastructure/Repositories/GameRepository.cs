@@ -102,4 +102,28 @@ public class GameRepository : IGameRepository
         await _context.HealthTags.AddRangeAsync(newTags);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<Game>> SearchGamesAsync(string query)
+    {
+        // 게임명, 카테고리, 건강 효과 태그에서 Contains 검색
+        return await _context.Games
+            .Include(g => g.HealthTags)
+            .Where(g =>
+                g.Name.Contains(query) ||
+                g.Category.Contains(query) ||
+                g.HealthTags.Any(t => t.Tag.Contains(query)))
+            .OrderByDescending(g => g.DownloadCount)
+            .ToListAsync();
+    }
+
+    public async Task<List<Game>> GetGamesByTagsAsync(IEnumerable<string> tags)
+    {
+        // 지정된 태그 중 하나라도 보유한 게임 조회 (OR 조건)
+        var tagList = tags.ToList();
+        return await _context.Games
+            .Include(g => g.HealthTags)
+            .Where(g => g.HealthTags.Any(t => tagList.Contains(t.Tag)))
+            .OrderByDescending(g => g.DownloadCount)
+            .ToListAsync();
+    }
 }

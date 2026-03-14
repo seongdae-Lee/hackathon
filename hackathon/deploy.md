@@ -1,33 +1,35 @@
-# 배포 및 검증 가이드 - Sprint 2
+# 배포 및 검증 가이드 - Sprint 3
 
-> **Sprint 2 작업일:** 2026-03-15
-> **브랜치:** sprint2
-
----
-
-## Sprint 2 신규 기능
-
-- Claude AI API 연동 - 게임 건강 효과 자동 태깅
-- 게임 데이터 수집 파이프라인 (Mock Fallback 지원)
-- 유사 게임 추천 개선 (Confidence 가중치 유사도)
-- 프론트엔드 AI 배지 UI 개선 (AiAnalysisBadge)
-- ErrorFallback 공통 컴포넌트
-- Docker Compose 설정
+> **Sprint 3 작업일:** 2026-03-15
+> **브랜치:** sprint3
 
 ---
 
-## Sprint 2 자동 검증 완료 항목
+## Sprint 3 신규 기능
+
+- 맞춤 추천 백엔드 - `POST /api/recommend` (HealthTag 기반 필터링 + Claude AI 추천 이유 생성)
+- 맞춤 추천 프론트엔드 - `/recommend` 페이지 (건강 목표 카드 선택 + 추천 결과)
+- 검색 백엔드 - `GET /api/games/search?q={keyword}` (EF Core Contains 다중 필드 검색)
+- 검색 프론트엔드 - `/search?q={keyword}` 페이지 (하이라이팅 + 빈 상태 UI + debounce 300ms)
+- 신규 단위 테스트 12개 추가 (총 29개)
+
+---
+
+## Sprint 3 자동 검증 완료 항목
 
 - ✅ `dotnet build` - 경고 0, 오류 0
-- ✅ `dotnet test` - 17개 단위 테스트 모두 통과
-  - GameService 테스트 (8개: 기존 5개 + AI 분석 3개 추가)
+- ✅ `dotnet test` - 29개 단위 테스트 모두 통과
+  - GameServiceTests (8개)
   - ClaudeApiServiceTests (3개)
   - GameRecommendationServiceTests (4개)
   - GameDataCollectorServiceTests (2개)
+  - GameSearchServiceTests (6개: 신규)
+  - HealthGoalRecommendServiceTests (6개: 신규)
+- ✅ `npm run build` - TypeScript 오류 없음, 빌드 성공 (/, /recommend, /search, /games/[id] 6개 페이지)
 
 ---
 
-## Sprint 2 수동 검증 필요 항목
+## Sprint 3 수동 검증 필요 항목
 
 ### Claude API 키 설정 및 AI 분석 검증
 
@@ -51,26 +53,55 @@ curl -X POST "http://localhost:5000/api/admin/collect?maxCount=5"
 - ⬜ Admin API: `POST /api/admin/analyze/all` - 전체 일괄 분석 완료 확인
 - ⬜ Admin API: `POST /api/admin/collect` - Mock 게임 수집 → 신규 게임 DB 저장 확인
 
-### 프론트엔드 AI 태그 UI 검증
-
-- ⬜ 상세 페이지 - AI 분석 배지(`✨ AI 분석` / `📋 수동 태그`) 표시 확인
-- ⬜ 상세 페이지 - "Claude AI 분석 완료" 헤더 표시 (isAiAnalyzed=true 게임)
-- ⬜ 상세 페이지 - AI 분석 근거 펼침/접기 정상 동작 확인
-- ⬜ 홈 페이지 - ErrorFallback UI 표시 (백엔드 미실행 시)
-
-### Docker 환경 검증
+### Sprint 3 신규 기능 수동 검증
 
 ```bash
-# .env 파일 생성
+# 백엔드 실행 후 검증
+cd backend
+dotnet run --project src/HealthGameCurator.Api --urls "http://localhost:5000"
+
+# 검색 API 테스트
+curl "http://localhost:5000/api/games/search?q=달리기"
+
+# 맞춤 추천 API 테스트
+curl -X POST http://localhost:5000/api/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"healthGoals": ["심폐기능", "스트레스해소"]}'
+```
+
+- ⬜ `/recommend` 페이지 - 건강 목표 카드 5개 표시 확인 (심폐기능, 근력강화, 스트레스해소, 인지개선, 반응훈련)
+- ⬜ `/recommend` 페이지 - 목표 카드 복수 선택 후 "추천받기" 클릭 → AI 추천 이유 텍스트 확인
+- ⬜ Claude API 키 미설정 상태에서 추천 요청 시 기본 텍스트 반환 확인
+- ⬜ Header 검색 입력 → 엔터 시 `/search?q=` 페이지 이동 확인
+- ⬜ `/search?q=달리기` 페이지 - 검색 결과 카드 표시 + "달리기" 키워드 하이라이팅(노란 배경) 확인
+- ⬜ `/search?q=존재하지않는게임xyz` 페이지 - "검색 결과가 없습니다" 메시지 확인
+
+### Docker 환경 재빌드 (Sprint 3 코드 반영)
+
+```bash
+# .env 파일 생성 (없는 경우)
 echo "CLAUDE_API_KEY=your_api_key_here" > .env
 
-# Docker Compose 빌드 및 실행
+# Sprint 3 신규 코드 포함 전체 스택 재빌드
 docker compose up --build
 ```
 
-- ⬜ `docker compose up --build` - 전체 스택 빌드 성공 확인
-- ⬜ `http://localhost:3000` 프론트엔드 접속 확인
-- ⬜ `http://localhost:5000/swagger` 백엔드 Swagger 접속 확인
+- ⬜ `docker compose up --build` - Sprint 3 신규 코드 포함 전체 스택 빌드 성공 확인
+- ⬜ `http://localhost:3000/recommend` 접속 확인
+- ⬜ `http://localhost:3000/search?q=달리기` 접속 확인
+- ⬜ `http://localhost:5000/swagger` - `/api/recommend`, `/api/games/search` 엔드포인트 표시 확인
+
+### Sprint 2 이월 수동 검증 항목
+
+- ⬜ Admin API: `POST /api/admin/analyze/{id}` - AI 분석 트리거 → DB에 `isAiAnalyzed=true` 확인
+- ⬜ Admin API: `POST /api/admin/analyze/all` - 전체 일괄 분석 완료 확인
+- ⬜ Admin API: `POST /api/admin/collect` - Mock 게임 수집 → 신규 게임 DB 저장 확인
+- ⬜ 상세 페이지 - AI 분석 배지(`✨ AI 분석` / `📋 수동 태그`) 표시 확인
+- ⬜ 상세 페이지 - AI 분석 근거 펼침/접기 정상 동작 확인
+
+---
+
+## Sprint 2 기록 (2026-03-15, 브랜치: sprint2)
 
 ---
 
@@ -159,14 +190,19 @@ npm run dev
 
 ---
 
-## API 엔드포인트 목록
+## API 엔드포인트 목록 (Sprint 3 기준)
 
 | 메서드 | 경로 | 설명 |
 |--------|------|------|
 | GET | `/api/games` | 게임 목록 (query: category, sort, page, pageSize) |
 | GET | `/api/games/{id}` | 게임 상세 |
-| GET | `/api/games/{id}/similar` | 유사 게임 추천 |
+| GET | `/api/games/{id}/similar` | 유사 게임 추천 (Confidence 가중 유사도) |
+| GET | `/api/games/search?q={keyword}` | **(Sprint 3 신규)** 키워드 검색 (게임명, 태그, 카테고리) |
 | GET | `/api/categories` | 카테고리 목록 |
+| POST | `/api/recommend` | **(Sprint 3 신규)** 건강 목표 기반 맞춤 추천 |
+| POST | `/api/admin/analyze/{gameId}` | 단일 게임 AI 분석 트리거 |
+| POST | `/api/admin/analyze/all` | 미분석 게임 전체 일괄 AI 분석 |
+| POST | `/api/admin/collect` | 게임 데이터 수집 (Mock or RapidAPI) |
 
 ### 쿼리 파라미터 (`GET /api/games`)
 
@@ -183,4 +219,5 @@ npm run dev
 
 ## 검증 보고서
 
+- [Sprint 3 자동 검증 보고서](docs/sprint/sprint3/validation-report.md)
 - [Sprint 1 자동 검증 보고서](docs/sprint/sprint1/validation-report.md)

@@ -39,6 +39,26 @@ export interface ApiResponse<T> {
   code?: string
 }
 
+// 검색 결과 타입
+export interface SearchResult {
+  game: Game
+  matchedFields: string[]   // "name", "category", "tag"
+  matchedKeyword: string
+}
+
+// 추천 결과 항목 타입
+export interface RecommendResultItem {
+  game: Game
+  matchScore: number
+  recommendReason: string
+}
+
+// 맞춤 추천 응답 타입
+export interface RecommendResponse {
+  selectedGoals: string[]
+  games: RecommendResultItem[]
+}
+
 // 정렬 옵션
 export type SortOption = 'popular' | 'rating' | 'latest'
 

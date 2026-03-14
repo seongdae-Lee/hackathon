@@ -149,6 +149,65 @@ public class ClaudeApiService : IClaudeApiService
         }
     }
 
+    public async Task<string> GenerateRecommendReasonAsync(
+        string gameName,
+        string description,
+        string category,
+        IEnumerable<string> selectedGoals)
+    {
+        var goals = string.Join(", ", selectedGoals);
+        var apiKey = _configuration["ClaudeApi:ApiKey"];
+
+        // API 키 없으면 기본 텍스트 반환
+        if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_CLAUDE_API_KEY_HERE")
+        {
+            _logger.LogWarning("Claude API 키 없음 - 기본 추천 이유 반환: {GameName}", gameName);
+            return $"선택하신 건강 목표({goals})와 관련된 게임입니다.";
+        }
+
+        try
+        {
+            var prompt = $"다음 게임이 사용자가 선택한 건강 목표에 왜 좋은지 2~3문장으로 설명해주세요.\n" +
+                         $"게임명: {gameName}\n" +
+                         $"설명: {description}\n" +
+                         $"카테고리: {category}\n" +
+                         $"선택한 건강 목표: {goals}\n\n" +
+                         "한국어로 친근하게 설명해주세요. 설명 텍스트만 반환하고 다른 내용은 포함하지 마세요.";
+
+            var model = _configuration["ClaudeApi:Model"] ?? "claude-sonnet-4-6";
+            var requestBody = new
+            {
+                model,
+                max_tokens = 256,
+                messages = new[] { new { role = "user", content = prompt } }
+            };
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, ApiUrl);
+            httpRequest.Headers.Add("x-api-key", apiKey);
+            httpRequest.Headers.Add("anthropic-version", AnthropicVersion);
+            httpRequest.Content = JsonContent.Create(requestBody);
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(content);
+            var text = doc.RootElement
+                .GetProperty("content")[0]
+                .GetProperty("text")
+                .GetString()?.Trim() ?? string.Empty;
+
+            return string.IsNullOrEmpty(text)
+                ? $"선택하신 건강 목표({goals})와 관련된 게임입니다."
+                : text;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "추천 이유 생성 실패 - 게임: {GameName}", gameName);
+            return $"선택하신 건강 목표({goals})와 관련된 게임입니다.";
+        }
+    }
+
     // API 키 없을 때 카테고리 기반 Mock 결과 반환
     private static AiAnalysisResult CreateMockResult(AiAnalysisRequest request) =>
         new(true, request.Category switch
