@@ -11,4 +11,5 @@ public interface IGameRepository
     Task<Game?> GetGameByIdAsync(int id);
     Task<List<string>> GetCategoriesAsync();
     Task<List<Game>> GetSimilarGamesAsync(int gameId, int count = 4);
+    Task ReplaceHealthTagsAsync(int gameId, List<HealthTag> newTags);
 }

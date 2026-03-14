@@ -1,5 +1,5 @@
 using HealthGameCurator.Application.DTOs;
-using HealthGameCurator.Application.Services;
+using HealthGameCurator.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthGameCurator.Api.Controllers;
@@ -11,9 +11,9 @@ namespace HealthGameCurator.Api.Controllers;
 [Route("api/[controller]")]
 public class CategoriesController : ControllerBase
 {
-    private readonly GameService _gameService;
+    private readonly IGameService _gameService;
 
-    public CategoriesController(GameService gameService)
+    public CategoriesController(IGameService gameService)
     {
         _gameService = gameService;
     }
