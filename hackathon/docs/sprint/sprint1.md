@@ -1,5 +1,13 @@
 # Sprint 1: 프론트엔드 UI + Mock 데이터 구현 계획
 
+> **완료일:** 2026-03-14 | **상태:** ✅ 완료
+
+## 검증 결과
+
+- [Sprint 1 검증 보고서](sprint1/validation-report.md)
+
+---
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** 게임 홈 페이지와 상세 페이지 UI를 Mock 데이터 기반으로 완성하고, 백엔드 기초 API를 구축하여 사용자가 게임 목록 탐색 및 상세 정보 확인이 가능한 상태를 만든다.

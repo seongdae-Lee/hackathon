@@ -4,7 +4,7 @@
 
 - **프로젝트 목표**: 건강 목표 달성에 도움되는 게임을 AI 기반으로 큐레이션하여 제공하는 풀스택 웹 애플리케이션
 - **전체 예상 기간**: 4 스프린트 (약 8주, 해커톤 MVP는 Sprint 1~2로 커버)
-- **현재 진행 단계**: Phase 0 (계획 수립)
+- **현재 진행 단계**: Phase 1 완료 (Sprint 1 완료: 2026-03-14)
 - **기준일**: 2026-03-14
 
 ---
@@ -22,10 +22,10 @@
 
 | 항목 | 상태 |
 |------|------|
-| 전체 진행률 | 0% |
-| 현재 Phase | Phase 0 - 계획 수립 |
-| 다음 마일스톤 | Phase 1 완료 (프론트엔드 UI + Mock API) |
-| Must Have 진행률 | 0 / 11 태스크 |
+| 전체 진행률 | 25% (Phase 1 완료) |
+| 현재 Phase | Phase 1 완료 - 프론트엔드 UI + Mock API |
+| 다음 마일스톤 | Phase 2 완료 (AI 태깅 + 백엔드 완성, Sprint 2) |
+| Must Have 진행률 | 5 / 11 태스크 (FR-01~05, FR-07 완료) |
 | Should Have 진행률 | 0 / 6 태스크 |
 | Nice to Have 진행률 | 0 / 3 태스크 |
 
@@ -33,13 +33,13 @@
 
 | FR ID | 기능 | 우선순위 | Phase | 상태 |
 |-------|------|----------|-------|------|
-| FR-01 | 게임 목록 필터/정렬 | Must Have | 1 | 📋 |
-| FR-02 | 카테고리 목록 정의 | Must Have | 1 | 📋 |
-| FR-03 | 정렬 옵션 (인기/평점/최신) | Must Have | 1 | 📋 |
-| FR-04 | 게임 카드 UI | Must Have | 1 | 📋 |
-| FR-05 | 게임 상세 정보 표시 | Must Have | 1 | 📋 |
+| FR-01 | 게임 목록 필터/정렬 | Must Have | 1 | ✅ |
+| FR-02 | 카테고리 목록 정의 | Must Have | 1 | ✅ |
+| FR-03 | 정렬 옵션 (인기/평점/최신) | Must Have | 1 | ✅ |
+| FR-04 | 게임 카드 UI | Must Have | 1 | ✅ |
+| FR-05 | 게임 상세 정보 표시 | Must Have | 1 | ✅ |
 | FR-06 | AI 건강 효과 설명 표시 | Must Have | 2 | 📋 |
-| FR-07 | 스토어 바로가기 링크 | Must Have | 1 | 📋 |
+| FR-07 | 스토어 바로가기 링크 | Must Have | 1 | ✅ |
 | FR-08 | 유사 게임 추천 | Must Have | 2 | 📋 |
 | FR-09 | Claude API 건강 효과 자동 분류 | Must Have | 2 | 📋 |
 | FR-10 | 건강 효과 태그 목록 | Must Have | 2 | 📋 |
@@ -114,61 +114,62 @@
 ### 작업 목록
 
 #### 1-1. 프로젝트 초기 설정 (복잡도: 낮음)
-- ⬜ **Next.js 프로젝트 생성**: `create-next-app` + TypeScript strict mode + Tailwind CSS
+- ✅ **Next.js 프로젝트 생성**: `create-next-app` + TypeScript strict mode + Tailwind CSS
   - `tsconfig.json` strict: true 설정
   - Tailwind CSS 설정 및 기본 테마 정의 (색상, 폰트)
   - ESLint + Prettier 설정
-- ⬜ **ASP.NET Core 프로젝트 생성**: Clean Architecture 솔루션 구조 셋업
+- ✅ **ASP.NET Core 프로젝트 생성**: Clean Architecture 솔루션 구조 셋업
   - `HealthGameCurator.Api` (Web API)
   - `HealthGameCurator.Application` (Services, DTOs)
   - `HealthGameCurator.Domain` (Entities)
   - `HealthGameCurator.Infrastructure` (DB, External API)
   - `HealthGameCurator.Tests` (xUnit 테스트)
 - ⬜ **Docker Compose 설정**: 프론트엔드 + 백엔드 + DB 컨테이너 구성
-- ⬜ **Mock 데이터 준비**: 20개 이상의 건강 게임 샘플 데이터 JSON 파일 생성
+- ✅ **Mock 데이터 준비**: 21개 건강 게임 샘플 데이터 DB 시딩으로 구현
   - Game 모델: Name, Description, IconUrl, Rating, DownloadCount, Category, PlayStoreUrl, AppStoreUrl
   - HealthTag 모델: Tag, Confidence, AiDescription
 
 #### 1-2. 공통 컴포넌트 개발 (복잡도: 중간)
-- ⬜ **레이아웃 컴포넌트**: Header (로고, 네비게이션, 검색 입력) + Footer
+- ✅ **레이아웃 컴포넌트**: Header (로고, 네비게이션, 검색 입력) + Footer
   - 반응형 대응: 모바일 햄버거 메뉴
-- ⬜ **게임 카드 컴포넌트** (FR-04): 썸네일, 게임명, 카테고리, 평점(별점), 건강 효과 태그 배지
+- ✅ **게임 카드 컴포넌트** (FR-04): 썸네일, 게임명, 카테고리, 평점(별점), 건강 효과 태그 배지
   - next/image로 아이콘 렌더링
   - 태그는 색상 구분된 배지 형태
-- ⬜ **카테고리 필터 컴포넌트** (FR-02): 달리기, 명상/스트레스 해소, 팔 운동, 반응훈련, 밸런스, 피트니스
+- ✅ **카테고리 필터 컴포넌트** (FR-02): 달리기, 명상/스트레스 해소, 팔 운동, 반응훈련, 밸런스, 피트니스
   - 클릭 시 URL 쿼리 파라미터 변경
-- ⬜ **정렬 드롭다운 컴포넌트** (FR-03): 인기순, 평점순, 최신순
+- ✅ **정렬 드롭다운 컴포넌트** (FR-03): 인기순, 평점순, 최신순
 
 #### 1-3. 게임 홈 페이지 (S-01) (복잡도: 중간)
-- ⬜ **게임 목록 페이지** (FR-01): `/` 경로
+- ✅ **게임 목록 페이지** (FR-01): `/` 경로
   - 카테고리 필터 사이드바 또는 상단 탭
   - 정렬 드롭다운
   - 게임 카드 그리드 레이아웃 (반응형: 모바일 1열, 태블릿 2열, PC 3~4열)
-  - TanStack Query로 Mock API 호출
+  - TanStack Query로 백엔드 API 호출
   - 빈 상태 UI ("해당 카테고리에 게임이 없습니다")
-- ⬜ **인기 게임 섹션**: 상위 5개 게임 하이라이트 영역
+- ⬜ **인기 게임 섹션**: 상위 5개 게임 하이라이트 영역 (Phase 2로 이월)
 
 #### 1-4. 게임 상세 페이지 (S-02) (복잡도: 중간)
-- ⬜ **게임 상세 페이지** (FR-05): `/games/[id]` 경로
+- ✅ **게임 상세 페이지** (FR-05): `/games/[id]` 경로
   - 게임 기본 정보: 이름, 설명, 개발사, 스크린샷, 평점, 다운로드 수
   - 스토어 바로가기 버튼 (FR-07): Google Play / App Store 아이콘 + 외부 링크
   - AI 건강 효과 태그 영역 (FR-06): 태그 배지 + 신뢰도 바 (Mock 데이터)
   - AI 분석 근거 텍스트 표시 (FR-11)
-  - 유사 게임 추천 섹션 (FR-08): 같은 태그 기반 카드 3~4개 (Mock 데이터)
+  - 유사 게임 추천 섹션 (FR-08): GET /api/games/{id}/similar 엔드포인트 연동
   - 뒤로가기 버튼
 
 #### 1-5. 백엔드 기초 API (복잡도: 중간)
-- ⬜ **Domain 레이어**: Game, HealthTag 엔티티 정의
-- ⬜ **Application 레이어**: GameDto, HealthTagDto record 타입 정의
-- ⬜ **Infrastructure 레이어**: EF Core DbContext + SQLite 설정 + 초기 마이그레이션
-- ⬜ **Seed 데이터**: Mock 데이터를 DB에 시딩
-- ⬜ **API 엔드포인트**:
+- ✅ **Domain 레이어**: Game, HealthTag 엔티티 정의
+- ✅ **Application 레이어**: GameDto, HealthTagDto record 타입 정의
+- ✅ **Infrastructure 레이어**: EF Core DbContext + SQLite 설정 + 초기 마이그레이션
+- ✅ **Seed 데이터**: 21개 Mock 게임 데이터를 DB에 시딩
+- ✅ **API 엔드포인트**:
   - `GET /api/games` - 게임 목록 (카테고리 필터, 정렬, 페이지네이션)
   - `GET /api/games/{id}` - 게임 상세
+  - `GET /api/games/{id}/similar` - 유사 게임 추천
   - `GET /api/categories` - 카테고리 목록
-- ⬜ **통합 응답 형식**: `ApiResponse<T>` 래퍼 적용
-- ⬜ **CORS 설정**: 프론트엔드 도메인 명시적 허용
-- ⬜ **Serilog 설정**: 구조화된 로깅
+- ✅ **통합 응답 형식**: `ApiResponse<T>` 래퍼 적용
+- ✅ **CORS 설정**: 프론트엔드 도메인 명시적 허용
+- ✅ **Serilog 설정**: 구조화된 로깅
 
 ### 완료 기준 (Definition of Done)
 - ✅ 게임 홈 페이지에서 카테고리 필터, 정렬이 동작한다
@@ -547,7 +548,7 @@ Phase 4 (관리자 + 안정화)
 
 | 마일스톤 | 예상 완료일 | Phase | 설명 | 상태 |
 |----------|-------------|-------|------|------|
-| M1: 프론트엔드 UI 완성 | Sprint 1 종료 | Phase 1 | 게임 홈 + 상세 페이지 UI, Mock 데이터 기반 동작 | 📋 |
+| M1: 프론트엔드 UI 완성 | 2026-03-14 | Phase 1 | 게임 홈 + 상세 페이지 UI, Mock 데이터 기반 동작 | ✅ |
 | M2: MVP 완성 | Sprint 2 종료 | Phase 2 | AI 태깅 + 실제 API 연동, 해커톤 데모 가능 상태 | 📋 |
 | M3: Should Have 완성 | Sprint 3 종료 | Phase 3 | 맞춤 추천 + 검색 기능 추가 | 📋 |
 | M4: 전체 기능 완성 | Sprint 4 종료 | Phase 4 | 관리자 대시보드 + 성능 최적화 + 안정화 | 📋 |
