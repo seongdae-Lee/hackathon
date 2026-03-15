@@ -39,6 +39,7 @@ test.describe('홈 페이지', () => {
   })
 
   test('정렬 드롭다운이 표시된다', async ({ page }) => {
-    await expect(page.getByRole('button', { name: /인기순|평점순|최신순/ })).toBeVisible({ timeout: 10000 })
+    // SortDropdown은 <select> 요소로 구현됨 (combobox role)
+    await expect(page.getByRole('combobox')).toBeVisible({ timeout: 10000 })
   })
 })

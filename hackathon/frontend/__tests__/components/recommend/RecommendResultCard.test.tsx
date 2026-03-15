@@ -45,12 +45,13 @@ describe('RecommendResultCard', () => {
     expect(screen.getByText('75%')).toBeInTheDocument()
   })
 
-  it('100% 초과하는 점수는 100%로 표시된다', () => {
+  it('100% 초과하는 점수는 100%로 클램핑된다', () => {
     render(<RecommendResultCard item={makeItem({ matchScore: 1.5 })} rank={1} />)
-    // 점수 바는 100%를 초과하지 않아야 함
+    // 표시 텍스트는 실제 점수(150%)
     expect(screen.getByText('150%')).toBeInTheDocument()
+    // 바 너비는 CSS 커스텀 프로퍼티로 설정 — inline style.width 대신 --score-width 확인
     const bar = document.querySelector('.bg-green-400') as HTMLElement
-    expect(bar?.style.width).toBe('100%')
+    expect(bar?.style.getPropertyValue('--score-width')).toBe('100%')
   })
 
   it('recommendReason이 있으면 추천 이유를 표시한다', () => {
