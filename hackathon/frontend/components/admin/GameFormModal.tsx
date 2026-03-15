@@ -36,6 +36,9 @@ export default function GameFormModal({
   const [form, setForm] = useState<GameFormData>(defaultForm)
   const [errors, setErrors] = useState<Partial<Record<keyof GameFormData, string>>>({})
 
+  // 모달이 열릴 때(isOpen) 또는 편집 대상 게임이 바뀔 때(initialData?.id) 폼을 동기화하는
+  // 단방향 초기화 패턴. useState lazy initializer로는 props 변경을 추적할 수 없으므로
+  // effect 내 setState가 불가피하다.
   useEffect(() => {
     if (mode === 'edit' && initialData) {
       setForm({
@@ -54,6 +57,7 @@ export default function GameFormModal({
     }
     setErrors({})
   // initialData?.id 사용으로 객체 참조 비교 대신 ID 비교 → 불필요한 리렌더링 방지
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, initialData?.id, isOpen])
 
   const isValidUrl = (url: string): boolean => {

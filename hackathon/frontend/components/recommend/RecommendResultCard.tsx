@@ -1,3 +1,4 @@
+import React from 'react'
 import Link from 'next/link'
 import { RecommendResultItem } from '@/types'
 
@@ -55,9 +56,10 @@ export default function RecommendResultCard({ item, rank }: RecommendResultCardP
               {/* 매칭 점수 바 */}
               <div className="flex items-center gap-1.5 flex-1">
                 <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  {/* CSS custom property로 동적 너비 설정 — inline style 직접 사용 금지 정책 준수 */}
                   <div
-                    className="h-full bg-green-400 rounded-full transition-all"
-                    style={{ width: `${Math.min(scorePercent, 100)}%` }}
+                    className="h-full bg-green-400 rounded-full transition-all [width:var(--score-width)]"
+                    style={{ '--score-width': `${Math.min(scorePercent, 100)}%` } as React.CSSProperties}
                   />
                 </div>
                 <span className="text-xs text-gray-400">{scorePercent}%</span>

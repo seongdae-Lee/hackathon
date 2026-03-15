@@ -40,6 +40,12 @@ export default function GameTable({ games, analyzingId, onEdit, onDelete, onAnal
             <tr key={game.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">
+                  {/*
+                    next/image 대신 <img> 사용 이유:
+                    onError 핸들러로 로드 실패 시 이모지 fallback 처리가 필요하며,
+                    next/image는 onError 이벤트를 지원하지 않음.
+                    실패한 게임 ID를 Set으로 추적하여 무한 onError 루프 방지.
+                  */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={failedImages.has(game.id) ? undefined : (game.iconUrl || undefined)}

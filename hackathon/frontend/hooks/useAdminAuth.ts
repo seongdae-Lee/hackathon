@@ -6,22 +6,25 @@ import { useRouter } from 'next/navigation'
 const AUTH_KEY = 'admin_authenticated'
 
 export function useAdminAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null) // null = 확인 중
   const router = useRouter()
 
+  // sessionStorage는 브라우저 전용 API → SSR 안전 처리 후 lazy 초기화
+  // setState를 effect 내부에서 직접 호출하지 않아 cascading render 방지
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(() => {
+    if (typeof window === 'undefined') return null
+    return sessionStorage.getItem(AUTH_KEY) === 'true'
+  })
+
+  // 미인증 상태 확정 시 로그인 페이지로 리다이렉트
   useEffect(() => {
-    const auth = sessionStorage.getItem(AUTH_KEY)
-    if (auth === 'true') {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
+    if (isAuthenticated === false) {
       router.replace('/admin/login')
     }
-  }, [router])
+  }, [isAuthenticated, router])
 
   const logout = () => {
     sessionStorage.removeItem(AUTH_KEY)
-    router.replace('/admin/login')
+    setIsAuthenticated(false)
   }
 
   return { isAuthenticated, logout }
