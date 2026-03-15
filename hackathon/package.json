@@ -1,0 +1,16 @@
+{
+  "name": "hackathon",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && dotnet test",
+    "test:all": "npm run test:frontend && npm run test:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "hook:install": "git config core.hooksPath hackathon/.husky && echo 'pre-commit 훅 활성화 완료'"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2"
+  }
+}

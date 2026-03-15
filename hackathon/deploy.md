@@ -11,11 +11,93 @@
 | **Swagger UI** | https://hackathon-api-production-3278.up.railway.app/swagger |
 | **관리자 페이지** | https://frontend-o95y4zyqi-seongdae-lees-projects.vercel.app/admin |
 
-### CI/CD 자동 배포
+---
 
-`master` 브랜치 push 시 GitHub Actions가 자동 배포:
-- `frontend/**` 변경 → Vercel 자동 배포
-- `backend/**` 변경 → Railway 자동 배포
+## ⚙️ CI/CD 파이프라인
+
+### 워크플로우 파일 구조
+
+| 파일 | 트리거 | 역할 |
+|------|--------|------|
+| `.github/workflows/ci.yml` | 모든 브랜치 push, master PR | 테스트 전용 (배포 없음) |
+| `.github/workflows/deploy-frontend.yml` | master + `frontend/**` 변경 | 테스트 → Vercel 배포 |
+| `.github/workflows/deploy-backend.yml` | master + `backend/**` 변경 | 테스트 → Railway 배포 |
+
+### 파이프라인 흐름
+
+```
+feature/sprint 브랜치 push
+          │
+          ▼
+   [ci.yml 자동 실행]
+   ├─ 프론트엔드: ESLint → Jest → Next.js 빌드
+   └─ 백엔드: dotnet build → dotnet test
+          │
+          ▼ (모두 통과 시)
+   master 브랜치 PR 생성 / 머지
+          │
+          ├─ frontend/** 변경 → [deploy-frontend.yml]
+          │    ESLint → Jest → Next.js 빌드 → Vercel 배포
+          │
+          └─ backend/** 변경 → [deploy-backend.yml]
+               dotnet build → dotnet test → Railway 배포
+```
+
+> **테스트 실패 시 배포 차단**: 각 deploy 워크플로우에 테스트 스텝이 포함되어 있어, 테스트 미통과 시 배포 스텝이 실행되지 않습니다.
+
+### GitHub Secrets 필요 목록
+
+| Secret | 용도 |
+|--------|------|
+| `VERCEL_TOKEN` | Vercel 배포 인증 |
+| `VERCEL_ORG_ID` | Vercel 조직 ID |
+| `VERCEL_PROJECT_ID` | Vercel 프로젝트 ID |
+| `RAILWAY_TOKEN` | Railway 배포 인증 |
+| `RAILWAY_SERVICE_ID` | Railway 서비스 ID |
+
+---
+
+## 🖥️ 로컬 테스트 자동화 (pre-commit 훅)
+
+커밋 전 자동으로 lint + 테스트를 실행하는 git 훅을 설정합니다.
+
+### 1회 설정 (git 루트인 `C:\source`에서 실행)
+
+```bash
+# C:\source 디렉토리에서 실행
+git config core.hooksPath hackathon/.husky
+```
+
+설정 후 `git commit` 시 자동으로 실행:
+
+- **프론트엔드 파일 변경 시**: ESLint → Jest 단위 테스트
+- **백엔드 파일 변경 시**: dotnet build → dotnet test
+
+### 훅 비활성화 (임시)
+
+```bash
+# 훅 건너뛰기 (긴급 커밋 시)
+git commit --no-verify -m "hotfix: ..."
+
+# 훅 완전 비활성화
+git config --unset core.hooksPath
+```
+
+### 수동 테스트 실행 (훅 없이)
+
+```bash
+# C:\source\hackathon 에서 실행
+
+# 프론트엔드만
+npm run test:frontend        # Jest 단위 테스트
+npm run lint:frontend        # ESLint
+
+# 백엔드만
+npm run test:backend         # dotnet test
+
+# 전체 (프론트 + 백엔드)
+npm run test:all
+```
 
 ---
 

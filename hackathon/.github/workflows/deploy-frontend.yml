@@ -1,6 +1,7 @@
-name: 프론트엔드 배포 (Vercel)
+name: 프론트엔드 CI + 배포 (Vercel)
 # 배포 URL: https://frontend-o95y4zyqi-seongdae-lees-projects.vercel.app
 # 트리거: master 브랜치 + frontend/** 파일 변경 시 자동 실행
+# 순서: lint → 단위 테스트 → 빌드 → Vercel 배포 (각 단계 실패 시 중단)
 
 on:
   push:
@@ -11,8 +12,8 @@ on:
       - '.github/workflows/deploy-frontend.yml'
 
 jobs:
-  deploy:
-    name: Vercel 프로덕션 배포
+  test-and-deploy:
+    name: 테스트 → Vercel 배포
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +27,28 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
+      - name: 의존성 설치
+        working-directory: frontend
+        run: npm ci
+
+      # ── 테스트 게이트 (실패 시 배포 차단) ──
+      - name: ESLint 검사
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Jest 단위 테스트
+        working-directory: frontend
+        run: npm run test:coverage
+        env:
+          CI: true
+
+      - name: Next.js 프로덕션 빌드 확인
+        working-directory: frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://hackathon-api-production-3278.up.railway.app
+
+      # ── 모든 테스트 통과 후 배포 ──
       - name: Vercel CLI 설치
         run: npm install -g vercel@latest
 

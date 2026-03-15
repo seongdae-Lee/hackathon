@@ -1,7 +1,8 @@
-name: 백엔드 배포 (Railway)
+name: 백엔드 CI + 배포 (Railway)
 # 배포 URL: https://hackathon-api-production-3278.up.railway.app
 # Swagger: https://hackathon-api-production-3278.up.railway.app/swagger
 # 트리거: master 브랜치 + backend/** 파일 변경 시 자동 실행
+# 순서: 빌드 → xUnit 테스트 → Railway 배포 (각 단계 실패 시 중단)
 
 on:
   push:
@@ -12,14 +13,33 @@ on:
       - '.github/workflows/deploy-backend.yml'
 
 jobs:
-  deploy:
-    name: Railway 프로덕션 배포
+  test-and-deploy:
+    name: 테스트 → Railway 배포
     runs-on: ubuntu-latest
 
     steps:
       - name: 소스 체크아웃
         uses: actions/checkout@v4
 
+      - name: .NET 9 설정
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: 패키지 복원
+        working-directory: backend
+        run: dotnet restore
+
+      # ── 테스트 게이트 (실패 시 배포 차단) ──
+      - name: 빌드
+        working-directory: backend
+        run: dotnet build --no-restore --configuration Release
+
+      - name: xUnit 단위 테스트
+        working-directory: backend
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+      # ── 모든 테스트 통과 후 배포 ──
       - name: Railway CLI 설치
         run: npm install -g @railway/cli@latest
 

@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+# pre-commit 훅 - 커밋 전 자동 테스트 실행
+# 활성화 방법: git config core.hooksPath hackathon/.husky  (C:\source 에서 실행)
+
+set -e   # 한 단계라도 실패 시 커밋 중단
+
+STAGED=$(git diff --cached --name-only)
+
+# ── 프론트엔드 변경이 있을 때 ──────────────────────────
+if echo "$STAGED" | grep -qE '^hackathon/frontend/'; then
+  echo "🔍 [pre-commit] 프론트엔드 ESLint 검사 중..."
+  cd "$(git rev-parse --show-toplevel)/hackathon/frontend"
+  npm run lint
+
+  echo "🧪 [pre-commit] Jest 단위 테스트 실행 중..."
+  npm test
+  cd - > /dev/null
+fi
+
+# ── 백엔드 변경이 있을 때 ───────────────────────────────
+if echo "$STAGED" | grep -qE '^hackathon/backend/'; then
+  echo "🔨 [pre-commit] 백엔드 빌드 검사 중..."
+  cd "$(git rev-parse --show-toplevel)/hackathon/backend"
+  dotnet build --no-restore -v quiet
+
+  echo "🧪 [pre-commit] xUnit 테스트 실행 중..."
+  dotnet test --no-build -v quiet
+  cd - > /dev/null
+fi
+
+echo "✅ [pre-commit] 모든 검사 통과 - 커밋을 진행합니다."
