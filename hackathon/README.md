@@ -71,40 +71,119 @@
 
 ```
 hackathon/
-├── .github/workflows/
-│   ├── deploy-frontend.yml   # Vercel 자동 배포 워크플로우
-│   └── deploy-backend.yml    # Railway 자동 배포 워크플로우
+├── .github/
+│   └── workflows/
+│       ├── deploy-frontend.yml       # master push → Vercel 자동 배포
+│       └── deploy-backend.yml        # master push → Railway 자동 배포
+│
 ├── backend/
 │   ├── src/
-│   │   ├── HealthGameCurator.Api/            # 컨트롤러, 진입점
-│   │   ├── HealthGameCurator.Application/    # 서비스, DTOs, 인터페이스
-│   │   ├── HealthGameCurator.Domain/         # 도메인 엔티티, Enums
-│   │   └── HealthGameCurator.Infrastructure/ # DB, Claude API, 데이터 수집
-│   └── tests/
-│       └── HealthGameCurator.Tests/          # xUnit 단위 테스트 (37개)
+│   │   ├── HealthGameCurator.Api/            # 컨트롤러, 진입점, CORS, 미들웨어
+│   │   ├── HealthGameCurator.Application/    # 서비스, DTOs, 인터페이스, Validation
+│   │   ├── HealthGameCurator.Domain/         # 도메인 엔티티(Game, HealthTag), Enums
+│   │   └── HealthGameCurator.Infrastructure/ # EF Core, Claude API, 데이터 수집
+│   ├── tests/
+│   │   └── HealthGameCurator.Tests/          # xUnit 단위 테스트 (37개)
+│   └── Dockerfile
+│
 ├── frontend/
-│   ├── app/                                  # Next.js App Router 페이지
-│   │   ├── admin/                            # 관리자 대시보드
-│   │   ├── recommend/                        # 맞춤 추천 페이지
-│   │   ├── search/                           # 검색 결과 페이지
-│   │   └── games/[id]/                       # 게임 상세 페이지
+│   ├── app/                                  # Next.js App Router
+│   │   ├── layout.tsx                        # 루트 레이아웃 (TanStack Query Provider 주입)
+│   │   ├── page.tsx                          # 홈 — 게임 목록, 카테고리 필터, 정렬
+│   │   ├── error.tsx                         # 글로벌 에러 바운더리
+│   │   ├── providers.tsx                     # TanStack Query QueryClientProvider
+│   │   ├── admin/
+│   │   │   ├── page.tsx                      # 관리자 대시보드 (통계·게임 CRUD·AI 분석)
+│   │   │   └── login/
+│   │   │       └── page.tsx                  # 관리자 로그인 (admin/admin)
+│   │   ├── games/
+│   │   │   └── [id]/
+│   │   │       └── page.tsx                  # 게임 상세 (AI 태그, 스토어 링크, 유사 추천)
+│   │   ├── recommend/
+│   │   │   └── page.tsx                      # 맞춤 추천 — 건강 목표 선택 → AI 추천
+│   │   └── search/
+│   │       └── page.tsx                      # 키워드 검색 — debounce, 하이라이팅
+│   │
 │   ├── components/
-│   │   ├── game/                             # 게임 관련 컴포넌트
-│   │   ├── admin/                            # 관리자 컴포넌트
-│   │   ├── recommend/                        # 추천 관련 컴포넌트
-│   │   └── layout/                           # 레이아웃 컴포넌트
-│   ├── __tests__/                            # Jest 단위 테스트 (53개)
-│   └── e2e/                                  # Playwright E2E 테스트
+│   │   ├── admin/
+│   │   │   ├── DeleteConfirmDialog.tsx        # 게임 삭제 확인 다이얼로그
+│   │   │   ├── GameFormModal.tsx              # 게임 추가/수정 폼 모달
+│   │   │   ├── GameTable.tsx                  # 관리자 게임 목록 테이블
+│   │   │   └── index.ts                       # barrel export
+│   │   ├── game/
+│   │   │   ├── AiAnalysisBadge.tsx            # AI 분석 완료/수동 태그 배지
+│   │   │   ├── CategoryFilter.tsx             # 카테고리 필터 버튼 그룹
+│   │   │   ├── GameCard.tsx                   # 게임 카드 (썸네일, 평점, 태그)
+│   │   │   ├── GameCardSkeleton.tsx           # 로딩 스켈레톤
+│   │   │   ├── HealthTagBadge.tsx             # 건강 효과 태그 + Confidence 바
+│   │   │   ├── SearchResultCard.tsx           # 검색 결과 카드 (키워드 하이라이팅)
+│   │   │   ├── SortDropdown.tsx               # 정렬 드롭다운 (인기순/평점순/최신순)
+│   │   │   └── index.ts                       # barrel export
+│   │   ├── layout/
+│   │   │   ├── Header.tsx                     # 헤더 (로고, 검색 입력, 추천 링크)
+│   │   │   ├── Footer.tsx                     # 푸터
+│   │   │   └── index.ts                       # barrel export
+│   │   ├── recommend/
+│   │   │   ├── GoalCard.tsx                   # 건강 목표 선택 카드 (토글)
+│   │   │   ├── RecommendResultCard.tsx        # 추천 결과 카드 (매칭 점수, AI 추천 이유)
+│   │   │   └── index.ts                       # barrel export
+│   │   └── ui/
+│   │       └── ErrorFallback.tsx              # API 에러/빈 상태 공통 UI
+│   │
+│   ├── hooks/
+│   │   ├── useAdmin.ts                        # 관리자 CRUD useMutation 훅
+│   │   └── useAdminAuth.ts                    # sessionStorage 기반 인증 훅
+│   │
+│   ├── lib/
+│   │   ├── api.ts                             # axios 기반 API 클라이언트 함수 모음
+│   │   └── queryClient.ts                     # TanStack Query QueryClient 설정
+│   │
+│   ├── types/
+│   │   └── index.ts                           # 전체 타입 정의 (Game, HealthTag 등)
+│   │
+│   ├── __tests__/                             # Jest + RTL 단위 테스트 (53개)
+│   │   ├── components/
+│   │   │   ├── game/
+│   │   │   │   ├── CategoryFilter.test.tsx
+│   │   │   │   ├── GameCard.test.tsx
+│   │   │   │   └── HealthTagBadge.test.tsx
+│   │   │   ├── recommend/
+│   │   │   │   ├── GoalCard.test.tsx
+│   │   │   │   └── RecommendResultCard.test.tsx
+│   │   │   └── ui/
+│   │   │       └── ErrorFallback.test.tsx
+│   │   └── lib/
+│   │       └── api.test.ts
+│   │
+│   ├── e2e/                                   # Playwright E2E 테스트 (22개)
+│   │   ├── admin.spec.ts                      # 어드민 로그인/CRUD/유효성 검사
+│   │   ├── home.spec.ts                       # 홈 게임 목록/필터/정렬
+│   │   ├── recommend.spec.ts                  # 건강 목표 선택/추천 결과
+│   │   └── search.spec.ts                     # 검색 입력/결과/페이지 이동
+│   │
+│   ├── eslint.config.mjs                      # ESLint flat config (강화 규칙 포함)
+│   ├── jest.config.ts                         # Jest 설정 (next/jest transformer)
+│   ├── jest.setup.ts                          # @testing-library/jest-dom 임포트
+│   ├── next.config.ts                         # Next.js 설정
+│   ├── playwright.config.ts                   # Playwright 설정 (webServer 자동 시작)
+│   ├── postcss.config.mjs                     # Tailwind CSS 4 PostCSS 설정
+│   └── tsconfig.json                          # TypeScript strict 설정
+│
 ├── docs/
-│   ├── PRD.md                # 제품 요구사항 문서
-│   ├── ROADMAP.md            # 프로젝트 로드맵
-│   ├── API.md                # API 명세
-│   ├── CODE_REVIEW_CHECKLIST.md  # 코드 리뷰 체크리스트
-│   ├── 개발완료보고서.md
+│   ├── PRD.md                                 # 제품 요구사항 문서
+│   ├── ROADMAP.md                             # 프로젝트 로드맵 및 진행 현황
+│   ├── API.md                                 # 전체 엔드포인트 명세
+│   ├── CODE_REVIEW_CHECKLIST.md               # PR 머지 전 리뷰 체크리스트
+│   ├── 개발완료보고서.md                        # 스프린트 이력 및 기능 목록
+│   ├── 테스트보고서.md                          # 112개 테스트 결과 및 커버리지
 │   └── sprint/
-│       ├── sprint1.md ~ sprint4.md
+│       ├── sprint1.md                         # Sprint 1 계획/결과/커밋 (53e2f0d)
+│       ├── sprint2.md                         # Sprint 2 계획/결과/커밋 (bca74d3)
+│       ├── sprint3.md                         # Sprint 3 계획/결과/커밋 (733f8f0)
+│       └── sprint4.md                         # Sprint 4 계획/결과/커밋 (9b9b696)
+│
 ├── docker-compose.yml
-└── deploy.md                 # 실행 방법 및 검증 체크리스트
+└── deploy.md                                  # 프로덕션 URL, 실행 방법, 검증 체크리스트
 ```
 
 ---
