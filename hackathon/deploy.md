@@ -84,6 +84,12 @@ docker compose up --build
 
 ---
 
+## 검증 보고서
+
+- [Sprint 4 자동 검증 보고서](docs/sprint/sprint4/validation-report.md)
+
+---
+
 ## Sprint 3 기록 (2026-03-15, 브랜치: sprint3)
 
 ---
