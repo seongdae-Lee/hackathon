@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AdminGame, GameFormData } from '@/types'
 import { StatsCard, GameTable, GameFormModal, DeleteConfirmDialog } from '@/components/admin'
+import { useAdminAuth } from '@/hooks/useAdminAuth'
 import {
   useAdminStats,
   useAdminGames,
@@ -14,6 +15,8 @@ import {
 } from '@/hooks/useAdmin'
 
 export default function AdminPage() {
+  const { isAuthenticated, logout } = useAdminAuth()
+
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const [modalOpen, setModalOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<AdminGame | undefined>(undefined)
@@ -95,11 +98,31 @@ export default function AdminPage() {
 
   const isFormLoading = createMutation.isPending || updateMutation.isPending
 
+  // 인증 확인 중 (sessionStorage 접근 전)
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="text-gray-400 text-sm animate-pulse">인증 확인 중...</p>
+      </div>
+    )
+  }
+
+  // 미인증 — useAdminAuth에서 /admin/login으로 리다이렉트 처리
+  if (!isAuthenticated) return null
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">관리자 대시보드</h1>
-        <p className="text-sm text-gray-400 mt-1">게임 데이터 관리 및 AI 분석 현황</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">관리자 대시보드</h1>
+          <p className="text-sm text-gray-400 mt-1">게임 데이터 관리 및 AI 분석 현황</p>
+        </div>
+        <button
+          onClick={logout}
+          className="px-3 py-1.5 text-xs text-gray-400 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          로그아웃
+        </button>
       </div>
 
       {/* 통계 카드 */}
