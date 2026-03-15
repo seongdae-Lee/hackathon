@@ -1,6 +1,6 @@
 # API 명세 - 헬스케어 게이미피케이션 큐레이터
 
-> **버전:** Sprint 3 (2026-03-15)
+> **버전:** Sprint 4 (2026-03-15)
 > **Base URL:** `http://localhost:5000/api`
 > **Swagger UI:** `http://localhost:5000/swagger`
 
@@ -169,6 +169,124 @@
 ---
 
 ## Admin 엔드포인트
+
+### `GET /api/admin/stats` - 관리자 대시보드 통계
+
+관리자 대시보드 통계(전체/분석완료/미분석 게임 수) 반환.
+
+#### 응답 예시
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalGames": 31,
+    "analyzedGames": 21,
+    "unanalyzedGames": 10
+  }
+}
+```
+
+---
+
+### `GET /api/admin/games` - 관리자 게임 목록 조회
+
+등록일 내림차순으로 전체 게임 목록 반환. 관리자 전용.
+
+#### 응답 예시
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Zombies, Run!",
+      "isAiAnalyzed": true,
+      ...
+    }
+  ]
+}
+```
+
+---
+
+### `POST /api/admin/games` - 게임 추가
+
+새 게임을 등록합니다. FluentValidation 검증 적용.
+
+#### 요청 Body
+
+```json
+{
+  "name": "게임명",
+  "description": "게임 설명",
+  "developer": "개발사",
+  "category": "달리기",
+  "rating": 4.2,
+  "downloadCount": 50000,
+  "iconUrl": "https://example.com/icon.png",
+  "playStoreUrl": "https://play.google.com/...",
+  "appStoreUrl": null
+}
+```
+
+#### 검증 규칙
+
+| 필드 | 규칙 |
+|------|------|
+| `name` | 필수, 최대 200자 |
+| `description` | 필수, 최대 2000자 |
+| `developer` | 필수, 최대 200자 |
+| `category` | 필수, 허용 카테고리 중 하나 |
+| `rating` | 0.0 ~ 5.0 범위 |
+| `iconUrl` | 필수, 최대 500자 |
+| `playStoreUrl` / `appStoreUrl` | 선택, URL 형식 |
+
+---
+
+### `PUT /api/admin/games/{id}` - 게임 수정
+
+기존 게임을 수정합니다. POST와 동일한 body 구조.
+
+#### 경로 파라미터
+
+| 파라미터 | 타입 | 설명 |
+|---------|------|------|
+| `id` | int | 수정할 게임 ID |
+
+#### 응답 예시 (404 Not Found)
+
+```json
+{
+  "success": false,
+  "error": "게임을 찾을 수 없습니다.",
+  "code": "GAME_NOT_FOUND"
+}
+```
+
+---
+
+### `DELETE /api/admin/games/{id}` - 게임 삭제
+
+게임을 삭제합니다. 연관 HealthTag는 CASCADE DELETE로 자동 삭제.
+
+#### 경로 파라미터
+
+| 파라미터 | 타입 | 설명 |
+|---------|------|------|
+| `id` | int | 삭제할 게임 ID |
+
+#### 응답 예시 (성공)
+
+```json
+{
+  "success": true,
+  "data": null
+}
+```
+
+---
 
 ### `POST /api/admin/analyze/{gameId}` - 단일 게임 AI 분석
 

@@ -14,4 +14,9 @@ public interface IGameRepository
     Task ReplaceHealthTagsAsync(int gameId, List<HealthTag> newTags);
     Task<List<Game>> SearchGamesAsync(string query);
     Task<List<Game>> GetGamesByTagsAsync(IEnumerable<string> tags);
+    Task<Game> AddAsync(Game game);
+    Task<Game> UpdateAsync(Game game);
+    Task DeleteAsync(int id);
+    Task<int> CountAllAsync();
+    Task<int> CountAnalyzedAsync();
 }

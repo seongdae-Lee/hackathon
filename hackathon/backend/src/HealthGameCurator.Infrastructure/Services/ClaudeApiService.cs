@@ -26,6 +26,7 @@ public class ClaudeApiService : IClaudeApiService
         ILogger<ClaudeApiService> logger)
     {
         _httpClient = httpClient;
+        _httpClient.Timeout = TimeSpan.FromSeconds(30); // API 호출 타임아웃 30초
         _configuration = configuration;
         _logger = logger;
     }

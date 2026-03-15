@@ -1,3 +1,93 @@
+# 배포 및 검증 가이드 - Sprint 4
+
+> **Sprint 4 작업일:** 2026-03-15
+> **브랜치:** sprint4
+
+---
+
+## Sprint 4 신규 기능
+
+- 관리자 백엔드 — `GET /api/admin/stats`, `POST/PUT/DELETE /api/admin/games` CRUD API + FluentValidation
+- 관리자 프론트엔드 — `/admin` 페이지 (통계 카드, 게임 목록 테이블, 추가/수정/삭제 모달, AI 재분석 버튼, 데이터 수집 트리거)
+- 성능 최적화 — TanStack Query staleTime (게임 목록 5분, 상세 10분)
+- 에러 처리 강화 — 글로벌 에러 바운더리 (`app/error.tsx`), Claude API HTTP 타임아웃 30초
+- 신규 단위 테스트 8개 추가 (총 37개)
+
+---
+
+## Sprint 4 자동 검증 완료 항목
+
+- ✅ `dotnet build` — 경고 0, 오류 0
+- ✅ `dotnet test` — 37개 단위 테스트 모두 통과
+  - GameServiceTests (8개)
+  - ClaudeApiServiceTests (3개)
+  - GameRecommendationServiceTests (4개)
+  - GameDataCollectorServiceTests (2개)
+  - GameSearchServiceTests (6개)
+  - HealthGoalRecommendServiceTests (6개)
+  - AdminServiceTests (8개: 신규)
+- ✅ `npm run build` — TypeScript 오류 없음, 빌드 성공 (/, /admin, /recommend, /search, /games/[id] 포함)
+
+---
+
+## Sprint 4 수동 검증 필요 항목
+
+### 관리자 대시보드 UI 검증
+
+```bash
+# 백엔드 실행
+cd backend
+dotnet run --project src/HealthGameCurator.Api --urls "http://localhost:5000"
+
+# 프론트엔드 실행 (별도 터미널)
+cd frontend
+npm run dev
+
+# 관리자 API 직접 테스트
+curl http://localhost:5000/api/admin/stats
+
+# 게임 추가 테스트
+curl -X POST http://localhost:5000/api/admin/games \
+  -H "Content-Type: application/json" \
+  -d '{"name":"테스트 게임","description":"테스트 설명","category":"달리기","rating":4.0,"downloadCount":10000}'
+
+# 게임 수정 테스트 (ID는 실제 생성된 게임 ID로 변경)
+curl -X PUT http://localhost:5000/api/admin/games/{id} \
+  -H "Content-Type: application/json" \
+  -d '{"name":"수정된 게임","description":"수정된 설명","category":"달리기","rating":4.5,"downloadCount":20000}'
+
+# 게임 삭제 테스트
+curl -X DELETE http://localhost:5000/api/admin/games/{id}
+```
+
+- ⬜ `/admin` 페이지 접속 → 통계 카드 3개(전체/AI완료/미분석) 표시 확인
+- ⬜ "게임 추가" 모달 → 폼 입력 → 저장 → 게임 목록에 추가 확인
+- ⬜ 게임 "수정" 버튼 → 기존 데이터 로드 → 수정 → 저장 → 변경 확인
+- ⬜ 게임 "삭제" 버튼 → 확인 다이얼로그 → 삭제 → 목록에서 제거 확인
+- ⬜ "AI 재분석" 버튼 → 로딩 상태 → 태그 갱신 확인 (Claude API 키 설정 필요)
+- ⬜ "데이터 수집 시작" 버튼 → 완료/실패 상태 표시 확인
+- ⬜ 평점 범위 초과 입력 (예: 6.0) → 유효성 검사 오류 메시지 표시 확인
+
+### Docker 환경 재빌드 (Sprint 4 코드 반영)
+
+```bash
+# .env 파일 생성 (없는 경우)
+echo "CLAUDE_API_KEY=your_api_key_here" > .env
+
+# Sprint 4 신규 코드 포함 전체 스택 재빌드
+docker compose up --build
+```
+
+- ⬜ `docker compose up --build` — Sprint 4 신규 코드 포함 전체 스택 빌드 성공 확인
+- ⬜ `http://localhost:3000/admin` 접속 확인
+- ⬜ `http://localhost:5000/swagger` — `/api/admin/stats`, `/api/admin/games` 엔드포인트 표시 확인
+
+---
+
+## Sprint 3 기록 (2026-03-15, 브랜치: sprint3)
+
+---
+
 # 배포 및 검증 가이드 - Sprint 3
 
 > **Sprint 3 작업일:** 2026-03-15

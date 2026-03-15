@@ -1,6 +1,9 @@
+using FluentValidation;
 using HealthGameCurator.Api.Middleware;
+using HealthGameCurator.Application.DTOs;
 using HealthGameCurator.Application.Interfaces;
 using HealthGameCurator.Application.Services;
+using HealthGameCurator.Application.Validators;
 using HealthGameCurator.Infrastructure.Data;
 using HealthGameCurator.Infrastructure.Repositories;
 using HealthGameCurator.Infrastructure.Services;
@@ -44,6 +47,11 @@ try
     builder.Services.AddScoped<IGameDataCollectorService, GameDataCollectorService>();
     builder.Services.AddScoped<IGameSearchService, GameSearchService>();
     builder.Services.AddScoped<IHealthGoalRecommendService, HealthGoalRecommendService>();
+    builder.Services.AddScoped<IAdminService, AdminService>();
+
+    // FluentValidation 검증기 등록
+    builder.Services.AddScoped<IValidator<CreateGameRequest>, CreateGameRequestValidator>();
+    builder.Services.AddScoped<IValidator<UpdateGameRequest>, UpdateGameRequestValidator>();
 
     // CORS - 프론트엔드 도메인 명시적 허용 (와일드카드 금지)
     builder.Services.AddCors(options =>

@@ -19,12 +19,14 @@ export default function HomePage() {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
+    staleTime: 10 * 60 * 1000, // 10분 캐싱 (카테고리는 자주 변경되지 않음)
   })
 
   // 게임 목록 조회
   const { data, isLoading, isError } = useQuery({
     queryKey: ['games', { category: selectedCategory, sort, page }],
     queryFn: () => fetchGames({ category: selectedCategory ?? undefined, sort, page }),
+    staleTime: 5 * 60 * 1000, // 5분 캐싱
   })
 
   const games = data?.items ?? []

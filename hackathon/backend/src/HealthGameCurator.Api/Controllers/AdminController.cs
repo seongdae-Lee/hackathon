@@ -1,3 +1,4 @@
+using FluentValidation;
 using HealthGameCurator.Application.DTOs;
 using HealthGameCurator.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HealthGameCurator.Api.Controllers;
 
 /// <summary>
-/// 관리자 API 컨트롤러 - AI 분석 트리거, 데이터 수집
+/// 관리자 API 컨트롤러 - 통계, 게임 CRUD, AI 분석 트리거, 데이터 수집
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -13,13 +14,101 @@ public class AdminController : ControllerBase
 {
     private readonly IGameService _gameService;
     private readonly IGameDataCollectorService _collectorService;
+    private readonly IAdminService _adminService;
+    private readonly IValidator<CreateGameRequest> _createValidator;
+    private readonly IValidator<UpdateGameRequest> _updateValidator;
 
     public AdminController(
         IGameService gameService,
-        IGameDataCollectorService collectorService)
+        IGameDataCollectorService collectorService,
+        IAdminService adminService,
+        IValidator<CreateGameRequest> createValidator,
+        IValidator<UpdateGameRequest> updateValidator)
     {
         _gameService = gameService;
         _collectorService = collectorService;
+        _adminService = adminService;
+        _createValidator = createValidator;
+        _updateValidator = updateValidator;
+    }
+
+    /// <summary>
+    /// 관리자 대시보드 통계 조회
+    /// </summary>
+    [HttpGet("stats")]
+    public async Task<ActionResult<ApiResponse<AdminStatsDto>>> GetStats()
+    {
+        var stats = await _adminService.GetStatsAsync();
+        return Ok(ApiResponse<AdminStatsDto>.Ok(stats));
+    }
+
+    /// <summary>
+    /// 관리자용 전체 게임 목록 조회
+    /// </summary>
+    [HttpGet("games")]
+    public async Task<ActionResult<ApiResponse<List<AdminGameDto>>>> GetGames()
+    {
+        var games = await _adminService.GetAllGamesAsync();
+        return Ok(ApiResponse<List<AdminGameDto>>.Ok(games));
+    }
+
+    /// <summary>
+    /// 게임 추가 (FluentValidation 검증)
+    /// </summary>
+    [HttpPost("games")]
+    public async Task<ActionResult<ApiResponse<AdminGameDto>>> CreateGame([FromBody] CreateGameRequest request)
+    {
+        var validation = await _createValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            var errors = string.Join("; ", validation.Errors.Select(e => e.ErrorMessage));
+            return BadRequest(ApiResponse<AdminGameDto>.Fail(errors, "VALIDATION_FAILED"));
+        }
+
+        var game = await _adminService.CreateGameAsync(request);
+        return Ok(ApiResponse<AdminGameDto>.Ok(game));
+    }
+
+    /// <summary>
+    /// 게임 수정 (FluentValidation 검증)
+    /// </summary>
+    [HttpPut("games/{id:int}")]
+    public async Task<ActionResult<ApiResponse<AdminGameDto>>> UpdateGame(
+        int id, [FromBody] UpdateGameRequest request)
+    {
+        var validation = await _updateValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            var errors = string.Join("; ", validation.Errors.Select(e => e.ErrorMessage));
+            return BadRequest(ApiResponse<AdminGameDto>.Fail(errors, "VALIDATION_FAILED"));
+        }
+
+        try
+        {
+            var game = await _adminService.UpdateGameAsync(id, request);
+            return Ok(ApiResponse<AdminGameDto>.Ok(game));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(ApiResponse<AdminGameDto>.Fail("게임을 찾을 수 없습니다.", "GAME_NOT_FOUND"));
+        }
+    }
+
+    /// <summary>
+    /// 게임 삭제 (연관 HealthTag CASCADE 삭제)
+    /// </summary>
+    [HttpDelete("games/{id:int}")]
+    public async Task<ActionResult<ApiResponse<object?>>> DeleteGame(int id)
+    {
+        try
+        {
+            await _adminService.DeleteGameAsync(id);
+            return Ok(ApiResponse<object?>.Ok(null));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(ApiResponse<object?>.Fail("게임을 찾을 수 없습니다.", "GAME_NOT_FOUND"));
+        }
     }
 
     /// <summary>

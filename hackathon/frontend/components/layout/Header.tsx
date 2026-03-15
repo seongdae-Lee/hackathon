@@ -47,6 +47,9 @@ export default function Header() {
             <Link href="/recommend" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
               맞춤 추천
             </Link>
+            <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              관리자
+            </Link>
           </nav>
 
           {/* 모바일 햄버거 메뉴 */}
@@ -86,6 +89,13 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
             >
               맞춤 추천
+            </Link>
+            <Link
+              href="/admin"
+              className="block py-2 text-sm text-gray-400 hover:text-gray-600"
+              onClick={() => setMenuOpen(false)}
+            >
+              관리자
             </Link>
           </div>
         )}

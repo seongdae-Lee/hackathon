@@ -44,12 +44,14 @@ export default function GameDetailPage() {
     queryKey: ['game', gameId],
     queryFn: () => fetchGame(gameId),
     enabled: !isNaN(gameId),
+    staleTime: 10 * 60 * 1000, // 10분 캐싱 (AI 재분석 후 invalidate 필요 시 갱신됨)
   })
 
   const { data: similarGames = [], isLoading: isSimilarLoading } = useQuery({
     queryKey: ['similar', gameId],
     queryFn: () => fetchSimilarGames(gameId),
     enabled: !isNaN(gameId),
+    staleTime: 5 * 60 * 1000, // 5분 캐싱
   })
 
   if (isError) {

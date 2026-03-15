@@ -126,4 +126,34 @@ public class GameRepository : IGameRepository
             .OrderByDescending(g => g.DownloadCount)
             .ToListAsync();
     }
+
+    public async Task<Game> AddAsync(Game game)
+    {
+        _context.Games.Add(game);
+        await _context.SaveChangesAsync();
+        return game;
+    }
+
+    public async Task<Game> UpdateAsync(Game game)
+    {
+        _context.Games.Update(game);
+        await _context.SaveChangesAsync();
+        return game;
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var game = await _context.Games.FindAsync(id);
+        if (game is null) return;
+        _context.Games.Remove(game);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> CountAllAsync() =>
+        await _context.Games.CountAsync();
+
+    public async Task<int> CountAnalyzedAsync() =>
+        await _context.Games
+            .Where(g => g.HealthTags.Any(t => t.IsAiAnalyzed))
+            .CountAsync();
 }

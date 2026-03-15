@@ -59,6 +59,43 @@ export interface RecommendResponse {
   games: RecommendResultItem[]
 }
 
+// 관리자 통계 타입
+export interface AdminStats {
+  totalGames: number
+  analyzedGames: number
+  unanalyzedGames: number
+}
+
+// 관리자 게임 DTO 타입
+export interface AdminGame {
+  id: number
+  name: string
+  description: string
+  developer: string
+  iconUrl: string
+  rating: number
+  downloadCount: number
+  category: string
+  playStoreUrl: string | null
+  appStoreUrl: string | null
+  createdAt: string
+  isAiAnalyzed: boolean
+  healthTags: HealthTag[]
+}
+
+// 게임 생성/수정 요청 타입
+export interface GameFormData {
+  name: string
+  description: string
+  developer: string
+  category: string
+  rating: number
+  downloadCount: number
+  iconUrl: string
+  playStoreUrl: string | null
+  appStoreUrl: string | null
+}
+
 // 정렬 옵션
 export type SortOption = 'popular' | 'rating' | 'latest'
 
