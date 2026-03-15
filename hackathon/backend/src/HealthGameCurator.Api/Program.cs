@@ -53,16 +53,17 @@ try
     builder.Services.AddScoped<IValidator<CreateGameRequest>, CreateGameRequestValidator>();
     builder.Services.AddScoped<IValidator<UpdateGameRequest>, UpdateGameRequestValidator>();
 
-    // CORS - 프론트엔드 도메인 명시적 허용 (와일드카드 금지)
+    // CORS - 환경변수 ALLOWED_ORIGINS로 허용 도메인 주입 (콤마 구분)
+    var allowedOrigins = builder.Configuration["AllowedOrigins"]
+        ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        ?? ["http://localhost:3000", "http://localhost:3001"];
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowFrontend", policy =>
         {
             policy
-                .WithOrigins(
-                    "http://localhost:3000",
-                    "http://localhost:3001"
-                )
+                .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
