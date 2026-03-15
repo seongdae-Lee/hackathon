@@ -1,9 +1,23 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { SearchResult } from '@/types'
 
 interface SearchResultCardProps {
   result: SearchResult
+}
+
+// 카테고리별 이모지 반환
+function getCategoryEmoji(category: string): string {
+  const map: Record<string, string> = {
+    '달리기': '🏃',
+    '명상/스트레스 해소': '🧘',
+    '피트니스': '💪',
+    '반응훈련': '⚡',
+    '밸런스': '⚖️',
+    '인지/두뇌훈련': '🧠',
+    '팔 운동': '🤸',
+    '댄스/리듬': '💃',
+  }
+  return map[category] ?? '🎮'
 }
 
 // 텍스트에서 키워드를 찾아 하이라이팅 처리
@@ -37,13 +51,8 @@ export default function SearchResultCard({ result }: SearchResultCardProps) {
     <Link href={`/games/${game.id}`} className="block">
       <div className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
         {/* 게임 아이콘 */}
-        <div className="relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50">
-          <Image
-            src={game.iconUrl || '/placeholder-game.png'}
-            alt={game.name}
-            fill
-            className="object-cover"
-          />
+        <div className="w-16 h-16 flex-shrink-0 rounded-xl bg-gray-50 flex items-center justify-center text-3xl">
+          {getCategoryEmoji(game.category)}
         </div>
 
         {/* 게임 정보 */}

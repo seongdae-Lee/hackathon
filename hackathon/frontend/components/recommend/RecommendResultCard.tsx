@@ -1,10 +1,24 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { RecommendResultItem } from '@/types'
 
 interface RecommendResultCardProps {
   item: RecommendResultItem
   rank: number
+}
+
+// 카테고리별 이모지 반환
+function getCategoryEmoji(category: string): string {
+  const map: Record<string, string> = {
+    '달리기': '🏃',
+    '명상/스트레스 해소': '🧘',
+    '피트니스': '💪',
+    '반응훈련': '⚡',
+    '밸런스': '⚖️',
+    '인지/두뇌훈련': '🧠',
+    '팔 운동': '🤸',
+    '댄스/리듬': '💃',
+  }
+  return map[category] ?? '🎮'
 }
 
 export default function RecommendResultCard({ item, rank }: RecommendResultCardProps) {
@@ -18,13 +32,8 @@ export default function RecommendResultCard({ item, rank }: RecommendResultCardP
           {/* 순위 + 아이콘 */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <span className="text-xs font-bold text-gray-300">#{rank}</span>
-            <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gray-50">
-              <Image
-                src={game.iconUrl || '/placeholder-game.png'}
-                alt={game.name}
-                fill
-                className="object-cover"
-              />
+            <div className="w-14 h-14 rounded-xl bg-gray-50 flex items-center justify-center text-2xl">
+              {getCategoryEmoji(game.category)}
             </div>
           </div>
 

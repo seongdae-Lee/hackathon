@@ -186,7 +186,7 @@ export default function GameFormModal({
             <div>
               <label className="block text-xs text-gray-500 mb-1">아이콘 URL *</label>
               <input
-                type="url"
+                type="text"
                 value={form.iconUrl}
                 onChange={(e) => setForm({ ...form, iconUrl: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
