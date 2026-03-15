@@ -229,6 +229,7 @@ cd frontend && npx playwright test
 | [코드 리뷰 체크리스트](./docs/CODE_REVIEW_CHECKLIST.md) | PR 머지 전 리뷰 기준 |
 | [프로젝트 로드맵](./docs/ROADMAP.md) | 전체 기능 계획 및 진행 현황 |
 | [개발완료보고서](./docs/개발완료보고서.md) | 스프린트 이력, 기능 목록, 기술 결정 |
+| [테스트보고서](./docs/테스트보고서.md) | 단위·E2E 테스트 결과 및 커버리지 (112개 전체 통과) |
 | [Sprint 1~4 결과](./docs/sprint/) | 각 스프린트 계획/결과/검증 보고서 |
 
 ---
