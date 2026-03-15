@@ -12,6 +12,33 @@
 
 ---
 
+## 실제 소요 시간
+
+> **총 실제 소요: 약 5시간 30분** (Sprint 1 완료 당일 연속 진행)
+
+| Task | 예상 | 실제 | 비고 |
+|------|------|------|------|
+| Task 2-0: Sprint 1 이월 항목 | 30분 | 10분 | 신뢰도 바 이미 CSS variable 방식으로 구현됨 — 작업 불필요 |
+| Task 2-1: Claude API 연동 | 1.5일 | 2시간 30분 | JSON 파싱 이슈(↓ I-01) + CS9006 컴파일 오류(↓ I-02)로 지연 |
+| Task 2-2: 데이터 수집 파이프라인 | 1일 | 1시간 | RapidAPI 미연동 결정으로 Mock Fallback 구현에 집중 |
+| Task 2-3: 유사 게임 추천 개선 | 1일 | 1시간 | Confidence 가중 유사도 알고리즘 수식 설계에 집중 |
+| Task 2-4: 프론트엔드 AI 태그 UI | 0.5일 | 30분 | AiAnalysisBadge + ErrorFallback 단순 컴포넌트 |
+| **합계** | **4일** | **5시간 30분** | |
+
+---
+
+## 이슈 발생 현황
+
+| # | 심각도 | 발생 위치 | 이슈 내용 | 원인 | 해결 방법 | 소요 시간 |
+|---|--------|-----------|---------|------|---------|---------|
+| I-01 | Critical | Task 2-1 | Claude API 응답 JSON 파싱 실패 — `JsonSerializer.Deserialize` 예외 발생 | Claude가 JSON을 마크다운 코드 블록(` ```json `) 안에 감싸서 반환하는 경우가 있음 | `ClaudeApiService.cs`에 마크다운 코드 블록 제거 전처리 로직 추가 — ` ```json ` 구문 감지 후 중괄호 시작점부터 추출 | 45분 |
+| I-02 | Critical | Task 2-1 | C# 컴파일 오류 CS9006 — 보간 문자열에 JSON 예시 중괄호 포함 시 `{`, `}` 충돌 | C# 문자열 보간(`$"..."`)에서 `{`를 리터럴로 쓰려면 `{{`로 이스케이프 필요 | 프롬프트 문자열을 보간 부분과 JSON 예시 부분으로 분리하여 `string.Concat` 방식으로 결합 | 20분 |
+| I-03 | Important | Task 2-1 | API 키가 `YOUR_CLAUDE_API_KEY_HERE` 기본값일 때 예외 미처리 — 500 에러 반환 | API 키 유효성 검사 누락 | `ClaudeApiService.cs` 초기화 시 기본값 감지 → `IsMockMode` 플래그 설정, 이후 Mock 결과 자동 반환으로 Graceful degradation 구현 | 15분 |
+| I-04 | Minor | Task 2-2 | `MockGameDataProvider`의 모든 게임 아이콘 URL이 이모지 문자열로 설정됨 | 개발 초기 placeholder로 이모지를 사용했으나 프론트엔드 `next/image`와 호환 불가 | 모든 Mock 게임 `iconUrl`을 `https://play-lh.googleusercontent.com/xxx-icon` 형태의 유효한 HTTPS URL로 교체 | 10분 |
+| I-05 | Minor | Task 2-3 | 유사도 계산에서 태그 없는 게임(`healthTags.Count == 0`) 처리 시 `DivideByZeroException` | 유사도 수식의 분모가 `현재게임_태그수`인데 태그가 0개인 경우 미처리 | 태그 수 0 이면 같은 카테고리 + 평점 순 보완 로직으로 fallback 처리 추가 | 15분 |
+
+---
+
 ## 스프린트 목표
 
 | 목표 | 설명 | 상태 |

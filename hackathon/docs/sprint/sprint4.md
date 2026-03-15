@@ -4,6 +4,35 @@
 
 ---
 
+## 실제 소요 시간
+
+> **총 실제 소요: 약 6시간** (Sprint 3 완료 후 연속 진행)
+
+| Task | 예상 | 실제 | 비고 |
+|------|------|------|------|
+| Task 4-1: 관리자 백엔드 | 1.5일 | 2시간 | FluentValidation 카테고리 Enum 검증 설계(↓ I-01)로 소폭 지연 |
+| Task 4-2: 관리자 프론트엔드 | 1.5일 | 2시간 30분 | GameFormModal useEffect 의존성 이슈(↓ I-02) + 삭제 다이얼로그 UX 처리 |
+| Task 4-3: 성능 최적화 + 안정화 | 1일 | 1시간 30분 | 코드베이스 전체 에지케이스 16개 분석 및 수정 |
+| **합계** | **4일** | **6시간** | |
+
+---
+
+## 이슈 발생 현황
+
+> Sprint 4 에지케이스 16개 수정 이력은 하단 **에지케이스 수정 이력** 섹션 참조.
+> 여기서는 구현 중 새롭게 발생한 예상 외 이슈를 기록.
+
+| # | 심각도 | 발생 위치 | 이슈 내용 | 원인 | 해결 방법 | 소요 시간 |
+|---|--------|-----------|---------|------|---------|---------|
+| I-01 | Important | Task 4-1 | FluentValidation에서 허용 카테고리 목록을 하드코딩할 경우 `HealthTagType` 상수와 이중 관리 문제 발생 | 카테고리 허용값이 `HealthTagType.cs`와 `CreateGameRequestValidator.cs` 두 곳에 분산 | Validator에서 `HealthTagType.AllCategories` 상수 배열을 참조하도록 단일 출처 적용, 목록 추가 시 한 곳만 수정하면 반영 | 20분 |
+| I-02 | Important | Task 4-2 | `GameFormModal` 편집 모드에서 다른 게임 선택 시 폼이 초기화되지 않는 현상 | `useEffect` 의존성 배열에 `initialData` 객체 참조를 사용하여 부모가 매번 새 객체를 생성해도 의존성 변경을 감지하지 못함 | `useEffect` 의존성을 `initialData?.id`로 변경 — ID가 달라질 때만 폼 초기화 실행, 불필요한 리렌더링 방지 | 25분 |
+| I-03 | Important | Task 4-2 | 어드민 로그인 페이지 없이 `/admin` 직접 접근 시 인증 없이 관리자 기능 노출 | Sprint 4에서 JWT 인증 미구현(해커톤 범위 초과)으로 공개 접근 가능 | 세션 스토리지 기반 단순 클라이언트 인증(`useAdminAuth` 훅) 구현: `/admin/login` 페이지 추가, 세션 없으면 로그인 페이지로 리다이렉트 | 35분 |
+| I-04 | Critical | Task 4-3 | `RecommendResultCard`와 `SearchResultCard`에서 `next/image`에 이모지 URL 전달 시 Next.js 16에서 렌더링 오류 발생 — 전체 페이지가 error boundary로 대체 | `MockGameDataProvider`가 이모지를 `iconUrl`로 저장한 채 DB에 적재, `next/image`는 유효하지 않은 URL에서 에러 throw | `next/image` 임포트 전체 제거, `getCategoryEmoji` 함수로 카테고리 기반 이모지 div 렌더링으로 통일 (Sprint 1 `GameCard.tsx`와 동일 패턴) | 40분 |
+| I-05 | Minor | Task 4-2 | `GameFormModal`의 `iconUrl` 필드가 `type="url"` HTML 입력이어서 이모지가 저장된 기존 게임 수정 불가 | 브라우저 네이티브 URL 유효성 검사가 이모지 값을 폼 제출 전에 차단 | `type="url"` → `type="text"` 변경, 커스텀 `isValidUrl()` 함수로 유효성 검사 위임 | 10분 |
+| I-06 | Minor | Task 4-1 | `DELETE /api/admin/games/{id}` 요청 시 이미 삭제된 ID 재요청 시 500 에러 반환 | `GameRepository.DeleteAsync`에서 행을 찾지 못할 경우 EF Core가 자체 예외 throw, 글로벌 예외 핸들러에서 500으로 처리 | `GameRepository.DeleteAsync`에 명시적 `KeyNotFoundException` 추가, 컨트롤러에서 404로 변환 | 10분 |
+
+---
+
 ## 스프린트 목표
 
 | 목표 | 설명 | 상태 |

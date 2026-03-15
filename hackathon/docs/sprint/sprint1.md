@@ -8,6 +8,32 @@
 
 ---
 
+## 실제 소요 시간
+
+> **총 실제 소요: 약 7시간 30분** (예상 10 영업일 → 해커톤 집중 개발로 1일 완료)
+
+| Task | 예상 | 실제 | 비고 |
+|------|------|------|------|
+| Task 1-1: 프로젝트 초기 설정 | 1.5일 | 1시간 30분 | Clean Architecture 레이어 구조 설계에 시간 집중 |
+| Task 1-2: 백엔드 기초 API | 2일 | 2시간 | EF Core SQLite 마이그레이션 + Seed 데이터 구성 |
+| Task 1-3: 프론트엔드 공통 컴포넌트 | 1.5일 | 2시간 | Tailwind CSS 4 설정 이슈로 지연 (↓ 이슈 I-01) |
+| Task 1-4: 게임 홈/상세 페이지 | 2일 | 1시간 30분 | TanStack Query 연동 포함 |
+| Task 1-5: Docker Compose + 통합 | 1일 | 30분 | 포트 충돌 이슈 발생 (↓ 이슈 I-02) |
+| **합계** | **10 영업일** | **7시간 30분** | 해커톤 집중 개발 |
+
+---
+
+## 이슈 발생 현황
+
+| # | 심각도 | 발생 위치 | 이슈 내용 | 원인 | 해결 방법 | 소요 시간 |
+|---|--------|-----------|---------|------|---------|---------|
+| I-01 | Critical | Task 1-3 | Tailwind CSS 4 PostCSS 설정 오류 — `@tailwindcss/postcss` 플러그인 인식 불가 | Tailwind CSS 4는 v3와 PostCSS 설정 방식이 다름 (`tailwind.config.ts` 대신 `postcss.config.mjs` 사용) | `postcss.config.mjs`에 `@tailwindcss/postcss` 플러그인 직접 등록, `globals.css`에 `@import "tailwindcss"` 방식 적용 | 40분 |
+| I-02 | Minor | Task 1-5 | Docker Compose 실행 시 백엔드 포트 충돌 — 호스트 5062 포트 이미 사용 중 | 로컬 dotnet 개발 서버가 5062 포트 점유 | `docker-compose.yml` 포트 매핑을 `5000:8080`으로 변경, 환경변수 `ASPNETCORE_URLS=http://+:8080` 명시 | 20분 |
+| I-03 | Minor | Task 1-2 | EF Core 초기 마이그레이션 실행 시 `HealthTag` 외래 키 CASCADE 삭제 미설정 | `OnModelCreating`에서 관계 설정 누락 | `AppDbContext.cs`에 `.OnDelete(DeleteBehavior.Cascade)` 명시적 설정 후 마이그레이션 재생성 | 15분 |
+| I-04 | Minor | Task 1-3 | `next/image`를 이모지 URL에 사용했을 때 Next.js 16에서 렌더링 오류 발생 | Next.js 16은 `<Image src>` 에 유효하지 않은 URL 전달 시 에러 throw | 카테고리별 이모지 매핑 함수(`getCategoryEmoji`)를 사용하여 `<Image>` 컴포넌트 완전 제거, `div` + 텍스트 이모지로 교체 | 30분 |
+
+---
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** 게임 홈 페이지와 상세 페이지 UI를 Mock 데이터 기반으로 완성하고, 백엔드 기초 API를 구축하여 사용자가 게임 목록 탐색 및 상세 정보 확인이 가능한 상태를 만든다.

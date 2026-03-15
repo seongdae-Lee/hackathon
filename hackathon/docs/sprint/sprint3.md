@@ -4,6 +4,32 @@
 
 ---
 
+## 실제 소요 시간
+
+> **총 실제 소요: 약 4시간** (Sprint 2 완료 후 연속 진행)
+
+| Task | 예상 | 실제 | 비고 |
+|------|------|------|------|
+| Task 3-1: 검색 백엔드 | 1일 | 1시간 | EF Core Contains 한글 검색 인코딩 이슈(↓ I-01)로 소폭 지연 |
+| Task 3-2: 추천 백엔드 | 1일 | 1시간 30분 | Claude AI 추천 이유 생성 타임아웃 처리(↓ I-02) + OR 조건 LINQ 쿼리 |
+| Task 3-3: 검색 프론트엔드 | 0.5일 | 45분 | debounce 훅 구현 + SearchResultCard 하이라이팅 컴포넌트 |
+| Task 3-4: 추천 프론트엔드 | 0.5일 | 45분 | GoalCard 선택 상태 토글 + useMutation 연동 |
+| **합계** | **3일** | **4시간** | |
+
+---
+
+## 이슈 발생 현황
+
+| # | 심각도 | 발생 위치 | 이슈 내용 | 원인 | 해결 방법 | 소요 시간 |
+|---|--------|-----------|---------|------|---------|---------|
+| I-01 | Important | Task 3-1 | EF Core SQLite에서 한글 `Contains` 검색 시 대소문자 무시 설정이 기본 동작과 달라 일부 한글 태그 검색 불일치 | SQLite는 ASCII 대소문자 비교만 기본 지원, 한글은 사실상 무관하지만 `Contains`가 태그 앞에 `#` 접두사 포함 여부를 감안하지 않음 | 검색 쿼리에서 `#` 접두사 포함/미포함 양쪽으로 검색하도록 조건 확장, `matchedFields`에 `"tag"` 포함 시 프론트엔드가 하이라이팅 처리 | 25분 |
+| I-02 | Important | Task 3-2 | `POST /api/recommend` 응답 시간이 Claude API 호출로 인해 평균 8~12초 소요 — 프론트엔드 UX 저하 | 추천 대상 게임 최대 5개에 대해 각각 추천 이유를 Claude API로 생성하여 순차 호출 발생 | 추천 이유를 단일 API 호출로 통합(게임 목록 전체를 한 번에 프롬프트에 포함) + Claude API 타임아웃 30초 설정, 실패 시 기본 텍스트로 fallback | 35분 |
+| I-03 | Important | Task 3-2 | `healthGoals` 입력값에 `"심폐기능향상"` 처럼 공백 없는 합성어가 들어올 경우 HealthTagType 상수 매핑 실패 | 프론트엔드 `goalValue`와 백엔드 `HealthTagType` 상수 값이 불일치 (`"심폐기능"` vs `"심폐기능향상"`) | GoalCard의 `goalValue`를 `HealthTagType` 상수와 정확히 일치하도록 통일 (`"심폐기능"`, `"근력강화"`, etc.) | 10분 |
+| I-04 | Minor | Task 3-3 | 검색 페이지 URL 직접 접근(`/search?q=달리기`) 시 초기 렌더링에서 `useSearchParams`가 `null` 반환 | Next.js App Router에서 `useSearchParams`는 `Suspense` 경계 없이 사용 시 CSR hydration 오류 발생 | `Suspense` 래퍼 추가하여 `useSearchParams` 사용 컴포넌트를 감싸는 방식으로 처리 | 15분 |
+| I-05 | Minor | Task 3-4 | 추천받기 버튼 클릭 직후 결과가 이전 추천 결과와 겹쳐 보이는 현상 | `useMutation`의 `isSuccess` 상태가 이전 성공 결과를 유지하여 새 요청 시작 전까지 이전 결과 표시 | `useMutation` 호출 전 `reset()` 처리 추가 + 로딩 중 기존 결과 숨김 처리 | 10분 |
+
+---
+
 ## 스프린트 목표
 
 | 목표 | 설명 | 상태 |
