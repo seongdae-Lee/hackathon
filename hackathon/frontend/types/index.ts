@@ -3,7 +3,7 @@ export interface HealthTag {
   id: number
   tag: string
   confidence: number
-  aiDescription: string
+  aiDescription: string | null  // AI 분석 전 null일 수 있음
   isAiAnalyzed: boolean
 }
 

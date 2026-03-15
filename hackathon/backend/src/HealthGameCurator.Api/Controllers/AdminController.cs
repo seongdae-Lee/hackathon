@@ -112,14 +112,15 @@ public class AdminController : ControllerBase
     }
 
     /// <summary>
-    /// 단일 게임 AI 건강 효과 분석 트리거
+    /// 단일 게임 AI 건강 효과 분석 트리거 (관리자 재분석 버튼: forceReanalyze=true)
     /// </summary>
     [HttpPost("analyze/{gameId:int}")]
     public async Task<ActionResult<ApiResponse<AnalyzeGameResponse>>> AnalyzeGame(int gameId)
     {
-        var result = await _gameService.AnalyzeGameAsync(gameId);
+        // 관리자 패널에서 호출 시 강제 재분석 (이미 분석된 게임도 재분석)
+        var result = await _gameService.AnalyzeGameAsync(gameId, forceReanalyze: true);
 
-        if (!result.IsAnalyzed && result.TagsUpdated == 0 && result.GameName == string.Empty)
+        if (string.IsNullOrEmpty(result.GameName))
             return NotFound(ApiResponse<AnalyzeGameResponse>.Fail("게임을 찾을 수 없습니다.", "GAME_NOT_FOUND"));
 
         return Ok(ApiResponse<AnalyzeGameResponse>.Ok(result));

@@ -20,6 +20,8 @@ export default function AdminPage() {
   const [deleteTarget, setDeleteTarget] = useState<AdminGame | null>(null)
   const [analyzingId, setAnalyzingId] = useState<number | null>(null)
   const [collectStatus, setCollectStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [collectError, setCollectError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const { data: stats, isLoading: statsLoading } = useAdminStats()
   const { data: games = [], isLoading: gamesLoading } = useAdminGames()
@@ -46,12 +48,17 @@ export default function AdminPage() {
 
   // 폼 제출
   const handleFormSubmit = async (data: GameFormData) => {
-    if (modalMode === 'create') {
-      await createMutation.mutateAsync(data)
-    } else if (editTarget) {
-      await updateMutation.mutateAsync({ id: editTarget.id, data })
+    setFormError(null)
+    try {
+      if (modalMode === 'create') {
+        await createMutation.mutateAsync(data)
+      } else if (editTarget) {
+        await updateMutation.mutateAsync({ id: editTarget.id, data })
+      }
+      setModalOpen(false)
+    } catch (error) {
+      setFormError((error as Error).message)
     }
-    setModalOpen(false)
   }
 
   // 게임 삭제 확인
@@ -74,13 +81,15 @@ export default function AdminPage() {
   // 데이터 수집
   const handleCollect = async () => {
     setCollectStatus('loading')
+    setCollectError(null)
     try {
       await collectMutation.mutateAsync(10)
       setCollectStatus('success')
       setTimeout(() => setCollectStatus('idle'), 3000)
-    } catch {
+    } catch (error) {
+      setCollectError((error as Error).message)
       setCollectStatus('error')
-      setTimeout(() => setCollectStatus('idle'), 3000)
+      setTimeout(() => { setCollectStatus('idle'); setCollectError(null) }, 5000)
     }
   }
 
@@ -128,7 +137,7 @@ export default function AdminPage() {
       </div>
 
       {/* 액션 버튼 */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-1">
         <button
           onClick={handleOpenCreate}
           className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors"
@@ -146,6 +155,10 @@ export default function AdminPage() {
            '데이터 수집 시작'}
         </button>
       </div>
+      {collectError && (
+        <p className="text-xs text-red-500 mb-3 ml-1">{collectError}</p>
+      )}
+      {!collectError && <div className="mb-4" />}
 
       {/* 게임 목록 테이블 */}
       <div className="bg-white rounded-xl border border-gray-100">
@@ -167,9 +180,10 @@ export default function AdminPage() {
         mode={modalMode}
         initialData={editTarget}
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => { setModalOpen(false); setFormError(null) }}
         onSubmit={handleFormSubmit}
         isLoading={isFormLoading}
+        errorMessage={formError}
       />
 
       {/* 삭제 확인 다이얼로그 */}

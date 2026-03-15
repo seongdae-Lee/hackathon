@@ -15,6 +15,7 @@ interface GameFormModalProps {
   onClose: () => void
   onSubmit: (data: GameFormData) => void
   isLoading: boolean
+  errorMessage?: string | null
 }
 
 const defaultForm: GameFormData = {
@@ -30,7 +31,7 @@ const defaultForm: GameFormData = {
 }
 
 export default function GameFormModal({
-  mode, initialData, isOpen, onClose, onSubmit, isLoading
+  mode, initialData, isOpen, onClose, onSubmit, isLoading, errorMessage
 }: GameFormModalProps) {
   const [form, setForm] = useState<GameFormData>(defaultForm)
   const [errors, setErrors] = useState<Partial<Record<keyof GameFormData, string>>>({})
@@ -52,14 +53,23 @@ export default function GameFormModal({
       setForm(defaultForm)
     }
     setErrors({})
-  }, [mode, initialData, isOpen])
+  // initialData?.id 사용으로 객체 참조 비교 대신 ID 비교 → 불필요한 리렌더링 방지
+  }, [mode, initialData?.id, isOpen])
+
+  const isValidUrl = (url: string): boolean => {
+    try { new URL(url); return true } catch { return false }
+  }
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof GameFormData, string>> = {}
     if (!form.name.trim()) newErrors.name = '게임명은 필수입니다.'
     if (!form.description.trim()) newErrors.description = '설명은 필수입니다.'
     if (!form.developer.trim()) newErrors.developer = '개발사는 필수입니다.'
-    if (!form.iconUrl.trim()) newErrors.iconUrl = '아이콘 URL은 필수입니다.'
+    if (!form.iconUrl.trim()) {
+      newErrors.iconUrl = '아이콘 URL은 필수입니다.'
+    } else if (!isValidUrl(form.iconUrl)) {
+      newErrors.iconUrl = '유효한 URL 형식이어야 합니다. (예: https://...)'
+    }
     if (form.rating < 0 || form.rating > 5) newErrors.rating = '평점은 0.0~5.0 사이여야 합니다.'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -208,6 +218,11 @@ export default function GameFormModal({
                 placeholder="https://apps.apple.com/..."
               />
             </div>
+
+            {/* 서버 에러 메시지 */}
+            {errorMessage && (
+              <p className="text-xs text-red-500 px-1">{errorMessage}</p>
+            )}
 
             {/* 버튼 */}
             <div className="flex gap-3 pt-2">

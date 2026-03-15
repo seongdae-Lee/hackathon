@@ -313,13 +313,38 @@ Task 4-3: 성능 최적화 + 안정화 ←── Task 4-1, 4-2 완료
 
 ---
 
-## 테스트 현황 (Sprint 4 목표)
+## 테스트 현황 (Sprint 4 완료)
 
 | 테스트 파일 | 테스트 수 | 상태 |
 |------------|-----------|------|
 | 기존 (Sprint 3 이월) | 29개 | ✅ |
-| `AdminServiceTests.cs` | 8개 (신규) | ⬜ |
-| **합계 목표** | **37개** | ⬜ |
+| `AdminServiceTests.cs` | 8개 (신규) | ✅ |
+| **합계** | **37개** | ✅ |
+
+---
+
+## 에지케이스 수정 이력 (2026-03-15)
+
+코드베이스 전체 분석 후 16개 이슈 수정 완료:
+
+| 심각도 | 수정 파일 | 내용 |
+|--------|---------|------|
+| Important | `GameService.cs` + `AdminController.cs` | AI 재분석 버튼이 기분석 게임 Skip → `forceReanalyze` 파라미터로 관리자는 강제 재분석 가능 |
+| Important | `GameRepository.cs:DeleteAsync` | 레이스 컨디션 — 레포지토리도 `KeyNotFoundException` 발생하도록 보완 |
+| Important | `types/index.ts` | `aiDescription: string` → `string \| null` 타입 수정 |
+| Important | `lib/api.ts` | axios 타임아웃 10초 미설정 → 추가 |
+| Important | `lib/api.ts:searchGames` | 클라이언트 사이드 가드 없음 → 2글자 미만 빈 배열 반환 + 100자 제한 |
+| Important | `hooks/useAdmin.ts` | mutation `onError` 핸들러 없음 → 추가 + `retry: 0` |
+| Important | `app/games/[id]/page.tsx` | `Number(params.id)` 불안정 → `parseInt(..., 10)` + 배열 대비 + `> 0` 가드 |
+| Minor | `GameFormModal.tsx` | useEffect `initialData` 참조 비교 → `initialData?.id` 비교로 변경 |
+| Minor | `GameFormModal.tsx` | `iconUrl` URL 형식 검증 없음 → `new URL()` 검증 추가 |
+| Minor | `GameFormModal.tsx` | 서버 에러 메시지 미표시 → `errorMessage` prop 추가 |
+| Minor | `GameTable.tsx` | `img onError` 무한 루프 위험 → `Set<number>` 상태로 방지 |
+| Minor | `admin/page.tsx` | 데이터 수집 실패 메시지 없음 → `collectError` 표시 추가 |
+| Minor | `lib/api.ts:collectGames` | POST body `null` → `{}` 변경 |
+| Minor | `HealthGoalRecommendService.cs` | 입력값 길이 제한 없음 → 50자 초과 필터링 |
+| Minor | `AdminController.cs:AnalyzeGame` | 오류 판정 복잡 → `string.IsNullOrEmpty(result.GameName)` 단순화 |
+| Minor | `recommend/page.tsx` | 목표 미선택 피드백 없음 → 힌트 텍스트 추가 |
 
 ---
 

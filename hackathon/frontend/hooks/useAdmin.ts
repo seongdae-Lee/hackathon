@@ -36,6 +36,10 @@ export function useCreateGame() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin'] })
     },
+    onError: (error: Error) => {
+      console.error('게임 추가 실패:', error.message)
+    },
+    retry: 0, // 중복 요청 방지 - 실패 시 자동 재시도 비활성화
   })
 }
 
@@ -47,6 +51,10 @@ export function useUpdateGame() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin'] })
     },
+    onError: (error: Error) => {
+      console.error('게임 수정 실패:', error.message)
+    },
+    retry: 0,
   })
 }
 
@@ -58,6 +66,10 @@ export function useDeleteGame() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin'] })
     },
+    onError: (error: Error) => {
+      console.error('게임 삭제 실패:', error.message)
+    },
+    retry: 0,
   })
 }
 
@@ -69,6 +81,10 @@ export function useAnalyzeGame() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin'] })
     },
+    onError: (error: Error) => {
+      console.error('AI 재분석 실패:', error.message)
+    },
+    retry: 0,
   })
 }
 
@@ -80,5 +96,9 @@ export function useCollectGames() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin'] })
     },
+    onError: (error: Error) => {
+      console.error('데이터 수집 실패:', error.message)
+    },
+    retry: 0,
   })
 }

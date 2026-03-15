@@ -28,11 +28,11 @@ public class HealthGoalRecommendService : IHealthGoalRecommendService
 
     public async Task<RecommendResponse> RecommendGamesAsync(RecommendRequest request)
     {
-        // 유효한 목표만 필터링 (HealthTagType에 존재하는 값)
+        // 유효한 목표만 필터링 (비어있거나 50자 초과 또는 HealthTagType에 없는 값 제거)
         var validGoals = request.HealthGoals
             .Where(g => !string.IsNullOrWhiteSpace(g))
             .Select(g => g.Trim())
-            .Where(g => HealthTagType.AllTags.Contains("#" + g))
+            .Where(g => g.Length <= 50 && HealthTagType.AllTags.Contains("#" + g))
             .Distinct()
             .ToList();
 

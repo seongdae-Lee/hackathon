@@ -9,6 +9,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10초 타임아웃 - 무한 대기 방지
 })
 
 // 게임 목록 조회
@@ -60,10 +61,13 @@ export async function fetchCategories(): Promise<string[]> {
   return data.data
 }
 
-// 게임 키워드 검색
+// 게임 키워드 검색 (2글자 미만은 빈 배열 반환, 최대 100자 제한)
 export async function searchGames(query: string): Promise<SearchResult[]> {
+  const trimmed = query.trim().slice(0, 100)
+  if (trimmed.length < 2) return []
+
   const { data } = await apiClient.get<ApiResponse<SearchResult[]>>('/api/games/search', {
-    params: { q: query },
+    params: { q: trimmed },
   })
   if (!data.success || !data.data) {
     throw new Error(data.error ?? '검색에 실패했습니다.')
@@ -136,7 +140,7 @@ export async function analyzeGame(gameId: number): Promise<void> {
 
 // 데이터 수집 트리거
 export async function collectGames(maxCount = 10): Promise<void> {
-  const { data } = await apiClient.post<ApiResponse<unknown>>('/api/admin/collect', null, {
+  const { data } = await apiClient.post<ApiResponse<unknown>>('/api/admin/collect', {}, {
     params: { maxCount },
   })
   if (!data.success) {

@@ -55,16 +55,17 @@ public class GameService : IGameService
     }
 
     /// <summary>
-    /// 단일 게임 AI 분석 - IsAiAnalyzed == true인 게임은 재분석 Skip (DB 캐싱)
+    /// 단일 게임 AI 분석 - forceReanalyze=false이면 이미 분석된 게임은 Skip (DB 캐싱)
     /// </summary>
-    public async Task<AnalyzeGameResponse> AnalyzeGameAsync(int gameId)
+    /// <param name="forceReanalyze">true이면 이미 분석된 게임도 강제 재분석 (관리자 재분석용)</param>
+    public async Task<AnalyzeGameResponse> AnalyzeGameAsync(int gameId, bool forceReanalyze = false)
     {
         var game = await _gameRepository.GetGameByIdAsync(gameId);
         if (game is null)
             return new AnalyzeGameResponse(gameId, string.Empty, false, 0, "게임을 찾을 수 없습니다.");
 
-        // 이미 AI 분석된 게임은 재분석 Skip
-        if (game.HealthTags.Any(t => t.IsAiAnalyzed))
+        // 이미 AI 분석된 게임은 재분석 Skip (단, forceReanalyze=true이면 강제 재분석)
+        if (!forceReanalyze && game.HealthTags.Any(t => t.IsAiAnalyzed))
         {
             _logger.LogInformation("게임 {GameName}은 이미 AI 분석되었습니다. 재분석 Skip.", game.Name);
             return new AnalyzeGameResponse(gameId, game.Name, true, 0, "이미 분석된 게임입니다.");

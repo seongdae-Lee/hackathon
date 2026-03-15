@@ -15,10 +15,35 @@
 
 ---
 
+## Sprint 4 에지케이스 수정 이력 (2026-03-15)
+
+코드베이스 전체 에지케이스 분석 후 다음 항목 수정 완료:
+
+| # | 파일 | 이슈 | 수정 내용 |
+|---|------|------|---------|
+| 1 | `GameService.cs` | AI 재분석 버튼이 이미 분석된 게임을 Skip | `forceReanalyze` 파라미터 추가; 관리자 컨트롤러에서 `true` 전달 |
+| 2 | `GameRepository.cs` | `DeleteAsync` 레이스 컨디션 | 레포지토리에서도 명시적 `KeyNotFoundException` 발생 |
+| 3 | `HealthGoalRecommendService.cs` | 입력값 길이 제한 없음 | 50자 초과 목표값 필터링 추가 |
+| 4 | `AdminController.cs` | AnalyzeGame 오류 판정 불명확 | `string.IsNullOrEmpty(result.GameName)` 조건으로 단순화 |
+| 5 | `types/index.ts` | `aiDescription: string` 타입 불일치 | `string \| null`로 수정 |
+| 6 | `lib/api.ts` | axios 타임아웃 미설정 | 10초 타임아웃 추가 |
+| 7 | `lib/api.ts` | `searchGames` 클라이언트 가드 없음 | 2글자 미만 빈 배열 반환 + 100자 제한 |
+| 8 | `lib/api.ts` | `collectGames` POST body `null` | `{}` 빈 객체로 변경 |
+| 9 | `hooks/useAdmin.ts` | mutation `onError` 핸들러 없음 | 에러 로깅 + `retry: 0` 추가 |
+| 10 | `app/games/[id]/page.tsx` | `Number(params.id)` 파싱 불안정 | `parseInt(rawId, 10)` + 배열 처리 + `isValidId > 0` 가드 |
+| 11 | `GameFormModal.tsx` | useEffect 의존성 객체 참조 비교 | `initialData?.id` 사용으로 변경 |
+| 12 | `GameFormModal.tsx` | `iconUrl` URL 형식 검증 없음 | `new URL()` 시도로 유효성 검증 추가 |
+| 13 | `GameFormModal.tsx` | 서버 에러 메시지 미표시 | `errorMessage` prop 추가 |
+| 14 | `GameTable.tsx` | `img onError` 무한 루프 위험 | `Set<number>` 상태로 실패 이미지 추적 |
+| 15 | `admin/page.tsx` | 데이터 수집 실패 시 에러 메시지 없음 | `collectError` 상태 + UI 표시 추가 |
+| 16 | `recommend/page.tsx` | 목표 미선택 시 사용자 피드백 없음 | 힌트 텍스트 추가 |
+
+---
+
 ## Sprint 4 자동 검증 완료 항목
 
 - ✅ `dotnet build` — 경고 0, 오류 0
-- ✅ `dotnet test` — 37개 단위 테스트 모두 통과
+- ✅ `dotnet test` — 37개 단위 테스트 모두 통과 (에지케이스 수정 후 재확인)
   - GameServiceTests (8개)
   - ClaudeApiServiceTests (3개)
   - GameRecommendationServiceTests (4개)

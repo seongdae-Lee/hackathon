@@ -102,6 +102,9 @@ export default function RecommendPage() {
       >
         {isPending ? 'AI가 추천을 생성하고 있습니다...' : '추천받기'}
       </button>
+      {selectedGoals.length === 0 && !isPending && (
+        <p className="text-center text-xs text-gray-300 mt-2">최소 1개 이상의 건강 목표를 선택해주세요.</p>
+      )}
 
       {/* 로딩 중 */}
       {isPending && (

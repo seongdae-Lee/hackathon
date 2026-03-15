@@ -37,20 +37,23 @@ function getCategoryEmoji(category: string): string {
 export default function GameDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const gameId = Number(params.id)
+  // params.id가 배열일 경우(catch-all 라우트) 대비 명시적 파싱
+  const rawId = Array.isArray(params.id) ? params.id[0] : params.id
+  const gameId = parseInt(rawId as string, 10)
+  const isValidId = !isNaN(gameId) && gameId > 0
   const [expandedTagId, setExpandedTagId] = useState<number | null>(null)
 
   const { data: game, isLoading, isError } = useQuery({
     queryKey: ['game', gameId],
     queryFn: () => fetchGame(gameId),
-    enabled: !isNaN(gameId),
+    enabled: isValidId,
     staleTime: 10 * 60 * 1000, // 10분 캐싱 (AI 재분석 후 invalidate 필요 시 갱신됨)
   })
 
   const { data: similarGames = [], isLoading: isSimilarLoading } = useQuery({
     queryKey: ['similar', gameId],
     queryFn: () => fetchSimilarGames(gameId),
-    enabled: !isNaN(gameId),
+    enabled: isValidId,
     staleTime: 5 * 60 * 1000, // 5분 캐싱
   })
 

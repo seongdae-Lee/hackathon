@@ -11,6 +11,7 @@ public interface IGameService
     Task<GameDto?> GetGameByIdAsync(int id);
     Task<List<string>> GetCategoriesAsync();
     Task<List<GameDto>> GetSimilarGamesAsync(int gameId);
-    Task<AnalyzeGameResponse> AnalyzeGameAsync(int gameId);
+    /// <param name="forceReanalyze">true이면 이미 분석된 게임도 강제 재분석</param>
+    Task<AnalyzeGameResponse> AnalyzeGameAsync(int gameId, bool forceReanalyze = false);
     Task<List<AnalyzeGameResponse>> AnalyzeAllGamesAsync();
 }

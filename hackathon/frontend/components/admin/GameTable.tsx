@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { AdminGame } from '@/types'
 
 interface GameTableProps {
@@ -11,6 +12,9 @@ interface GameTableProps {
 }
 
 export default function GameTable({ games, analyzingId, onEdit, onDelete, onAnalyze }: GameTableProps) {
+  // 이미지 로드 실패한 URL 추적 - 무한 onError 루프 방지
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set())
+
   if (games.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400 text-sm">
@@ -38,10 +42,10 @@ export default function GameTable({ games, analyzingId, onEdit, onDelete, onAnal
                 <div className="flex items-center gap-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={game.iconUrl || '/placeholder.png'}
+                    src={failedImages.has(game.id) ? undefined : (game.iconUrl || undefined)}
                     alt={game.name}
-                    className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
-                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
+                    className="w-8 h-8 rounded-lg object-cover flex-shrink-0 bg-gray-100"
+                    onError={() => setFailedImages((prev) => new Set(prev).add(game.id))}
                   />
                   <span className="font-medium text-gray-900 line-clamp-1">{game.name}</span>
                 </div>

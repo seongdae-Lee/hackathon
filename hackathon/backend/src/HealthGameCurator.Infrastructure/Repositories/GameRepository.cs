@@ -143,8 +143,10 @@ public class GameRepository : IGameRepository
 
     public async Task DeleteAsync(int id)
     {
+        // AdminService에서 이미 존재 여부를 확인했지만, 레이스 컨디션 대비 명시적 처리
         var game = await _context.Games.FindAsync(id);
-        if (game is null) return;
+        if (game is null)
+            throw new KeyNotFoundException($"게임을 찾을 수 없습니다. ID: {id}");
         _context.Games.Remove(game);
         await _context.SaveChangesAsync();
     }
