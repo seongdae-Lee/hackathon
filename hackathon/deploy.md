@@ -1,4 +1,25 @@
-# 배포 및 검증 가이드 - Sprint 4
+# 배포 및 검증 가이드
+
+---
+
+## 🌐 프로덕션 배포 URL
+
+| 구분 | URL |
+|------|-----|
+| **프론트엔드 (Vercel)** | https://frontend-o95y4zyqi-seongdae-lees-projects.vercel.app |
+| **백엔드 API (Railway)** | https://hackathon-api-production-3278.up.railway.app |
+| **Swagger UI** | https://hackathon-api-production-3278.up.railway.app/swagger |
+| **관리자 페이지** | https://frontend-o95y4zyqi-seongdae-lees-projects.vercel.app/admin |
+
+### CI/CD 자동 배포
+
+`master` 브랜치 push 시 GitHub Actions가 자동 배포:
+- `frontend/**` 변경 → Vercel 자동 배포
+- `backend/**` 변경 → Railway 자동 배포
+
+---
+
+# Sprint 4 검증 가이드
 
 > **Sprint 4 작업일:** 2026-03-15
 > **브랜치:** sprint4

@@ -1,4 +1,6 @@
 name: 프론트엔드 배포 (Vercel)
+# 배포 URL: https://frontend-o95y4zyqi-seongdae-lees-projects.vercel.app
+# 트리거: master 브랜치 + frontend/** 파일 변경 시 자동 실행
 
 on:
   push:

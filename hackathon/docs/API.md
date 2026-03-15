@@ -1,8 +1,14 @@
 # API 명세 - 헬스케어 게이미피케이션 큐레이터
 
 > **버전:** Sprint 4 (2026-03-15)
-> **Base URL:** `http://localhost:5000/api`
-> **Swagger UI:** `http://localhost:5000/swagger`
+>
+> | 환경 | Base URL |
+> |------|---------|
+> | 로컬 개발 | `http://localhost:5000/api` |
+> | 프로덕션 (Railway) | `https://hackathon-api-production-3278.up.railway.app/api` |
+>
+> **Swagger UI (로컬):** `http://localhost:5000/swagger`
+> **Swagger UI (프로덕션):** `https://hackathon-api-production-3278.up.railway.app/swagger`
 
 ---
 

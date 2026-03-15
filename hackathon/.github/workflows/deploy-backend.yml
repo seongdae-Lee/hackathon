@@ -1,4 +1,7 @@
 name: 백엔드 배포 (Railway)
+# 배포 URL: https://hackathon-api-production-3278.up.railway.app
+# Swagger: https://hackathon-api-production-3278.up.railway.app/swagger
+# 트리거: master 브랜치 + backend/** 파일 변경 시 자동 실행
 
 on:
   push:
