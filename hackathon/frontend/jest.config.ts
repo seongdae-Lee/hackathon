@@ -18,11 +18,10 @@ const config: Config = {
     '!**/*.d.ts',
   ],
   coverageThreshold: {
-    // admin/* 컴포넌트는 E2E 테스트로 검증하므로 global 임계값은 현실적인 수치로 설정
     global: {
-      branches: 30,
-      functions: 20,
-      lines: 20,
+      branches: 75,
+      functions: 80,
+      lines: 80,
     },
   },
 }
