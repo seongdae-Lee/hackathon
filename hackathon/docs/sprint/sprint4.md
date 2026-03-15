@@ -2,6 +2,16 @@
 
 > **작업일:** 2026-03-15 | **상태:** ✅ 완료 | **브랜치:** sprint4
 
+## 관련 커밋
+
+| 해시 | 메시지 | 유형 |
+|------|--------|------|
+| [`9b9b696`](https://github.com/seongdae-Lee/hackathon/commit/9b9b69660f136567a8b561c19849b29d9c33e7ff) | feat: Sprint 4 - 관리자 대시보드 + 성능 최적화 + 안정화 구현 | 기능 구현 |
+| [`8b40ff7`](https://github.com/seongdae-Lee/hackathon/commit/8b40ff76772e968e4721b10f4f0809914195be67) | fix: Sprint 4 에지케이스 수정 및 안정화 (16개 이슈) | 버그 수정 |
+| [`6f731bb`](https://github.com/seongdae-Lee/hackathon/commit/6f731bb165f7ce17eecc845c000aab1ae42177ef) | feat: 관리자 페이지 로그인 인증 추가 및 메뉴 링크 제거 | 기능 구현 |
+| [`33c4c53`](https://github.com/seongdae-Lee/hackathon/commit/33c4c53723812e7318351811d23949368723e9be) | fix: next/image 이모지 URL 렌더링 오류 수정 및 데이터 품질 개선 | 버그 수정 |
+| [`e4e7b08`](https://github.com/seongdae-Lee/hackathon/commit/e4e7b08a350a2a2968b1f4b7085dfbe1e120d1ea) | docs: Sprint 4 마무리 - 검증 보고서 추가 및 문서 업데이트 | 문서 |
+
 ---
 
 ## 실제 소요 시간

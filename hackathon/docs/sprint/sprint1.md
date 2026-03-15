@@ -1,6 +1,13 @@
 # Sprint 1: 프론트엔드 UI + Mock 데이터 구현 계획
 
-> **완료일:** 2026-03-14 | **상태:** ✅ 완료
+> **완료일:** 2026-03-14 | **상태:** ✅ 완료 | **브랜치:** sprint1
+
+## 관련 커밋
+
+| 해시 | 메시지 | 유형 |
+|------|--------|------|
+| [`53e2f0d`](https://github.com/seongdae-Lee/hackathon/commit/53e2f0d44d03acb15acce02185675d95a1767ee4) | feat: Sprint 1 - 헬스게임 큐레이터 프로젝트 초기 구현 | 기능 구현 |
+| [`d6730aa`](https://github.com/seongdae-Lee/hackathon/commit/d6730aaa93eda91743a9ae4c9e3107c2a39507dd) | docs: Sprint 1 마무리 - ROADMAP 업데이트 및 검증 보고서 추가 | 문서 |
 
 ## 검증 결과
 

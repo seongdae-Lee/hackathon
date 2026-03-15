@@ -2,6 +2,13 @@
 
 > **작업일:** 2026-03-15 | **상태:** ✅ 완료 | **브랜치:** sprint2
 
+## 관련 커밋
+
+| 해시 | 메시지 | 유형 |
+|------|--------|------|
+| [`bca74d3`](https://github.com/seongdae-Lee/hackathon/commit/bca74d3e6c39040b84c03db544e2f7f96e678e89) | feat: Sprint 2 - Claude AI 연동, 데이터 수집, 추천 개선, UI 개선 | 기능 구현 |
+| [`f64aa7a`](https://github.com/seongdae-Lee/hackathon/commit/f64aa7ad8d7ef0b8b008e099eb92125da8a349cd) | docs: Sprint 2 문서 작성 및 전체 문서 업데이트 | 문서 |
+
 ## 검증 결과
 
 | 항목 | 결과 |
