@@ -1,6 +1,16 @@
 namespace HealthGameCurator.Application.DTOs;
 
 /// <summary>
+/// 관리자 로그인 요청 DTO
+/// </summary>
+public record LoginRequest(string Username, string Password);
+
+/// <summary>
+/// 관리자 로그인 응답 DTO - JWT 토큰 + 만료 시각 반환
+/// </summary>
+public record LoginResponse(string Token, DateTime ExpiresAt);
+
+/// <summary>
 /// 관리자 대시보드 통계 DTO
 /// </summary>
 public record AdminStatsDto(

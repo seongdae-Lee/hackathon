@@ -96,6 +96,12 @@ export interface GameFormData {
   appStoreUrl: string | null
 }
 
+// 관리자 로그인 응답 타입
+export interface LoginResponse {
+  token: string
+  expiresAt: string  // ISO 8601 UTC 문자열
+}
+
 // 정렬 옵션
 export type SortOption = 'popular' | 'rating' | 'latest'
 

@@ -176,6 +176,47 @@
 
 ## Admin 엔드포인트
 
+> **인증:** 로그인 엔드포인트(`POST /api/admin/login`)를 제외한 모든 Admin API는 `Authorization: Bearer <JWT>` 헤더가 필요합니다.
+
+---
+
+### `POST /api/admin/login` - 관리자 로그인 (인증 불필요)
+
+아이디/비밀번호를 검증하고 JWT 토큰을 발급합니다. 토큰 유효기간은 8시간입니다.
+
+#### 요청 본문
+
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
+
+#### 응답 예시 (성공)
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresAt": "2026-03-15T16:00:00Z"
+  }
+}
+```
+
+#### 응답 예시 (실패 - 401)
+
+```json
+{
+  "success": false,
+  "error": "아이디 또는 비밀번호가 올바르지 않습니다.",
+  "code": "INVALID_CREDENTIALS"
+}
+```
+
+---
+
 ### `GET /api/admin/stats` - 관리자 대시보드 통계
 
 관리자 대시보드 통계(전체/분석완료/미분석 게임 수) 반환.

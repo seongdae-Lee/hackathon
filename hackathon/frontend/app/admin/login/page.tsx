@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { login } from '@/hooks/useAdminAuth'
+import { adminLogin } from '@/lib/api'
 
 export default function AdminLoginPage() {
   const [id, setId] = useState('')
@@ -11,22 +11,21 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
 
-    // 짧은 딜레이로 브루트포스 시도 제한 효과
-    setTimeout(() => {
-      const success = login(id, password)
-      if (success) {
-        router.replace('/admin')
-      } else {
-        setError('아이디 또는 비밀번호가 올바르지 않습니다.')
-        setPassword('')
-      }
+    try {
+      // 백엔드에서 BCrypt 검증 후 JWT 토큰 발급
+      await adminLogin(id, password)
+      router.replace('/admin')
+    } catch {
+      setError('아이디 또는 비밀번호가 올바르지 않습니다.')
+      setPassword('')
+    } finally {
       setIsLoading(false)
-    }, 400)
+    }
   }
 
   return (

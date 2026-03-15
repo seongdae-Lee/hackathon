@@ -98,7 +98,7 @@ export default function AdminPage() {
 
   const isFormLoading = createMutation.isPending || updateMutation.isPending
 
-  // 인증 확인 중 (sessionStorage 접근 전)
+  // 인증 확인 중 (JWT 토큰 검증 전)
   if (isAuthenticated === null) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">

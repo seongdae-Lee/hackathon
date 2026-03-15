@@ -1,8 +1,38 @@
 import axios from 'axios'
-import { AdminGame, AdminStats, ApiResponse, Game, GameFormData, PagedResult, RecommendResponse, SearchResult, SortOption } from '@/types'
+import { AdminGame, AdminStats, ApiResponse, Game, GameFormData, LoginResponse, PagedResult, RecommendResponse, SearchResult, SortOption } from '@/types'
 
 // 백엔드 API 베이스 URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
+
+// JWT 토큰 localStorage 키
+const JWT_TOKEN_KEY = 'admin_jwt_token'
+const JWT_EXPIRES_KEY = 'admin_jwt_expires'
+
+/** JWT 토큰 저장 */
+export function saveToken(response: LoginResponse): void {
+  localStorage.setItem(JWT_TOKEN_KEY, response.token)
+  localStorage.setItem(JWT_EXPIRES_KEY, response.expiresAt)
+}
+
+/** JWT 토큰 삭제 */
+export function removeToken(): void {
+  localStorage.removeItem(JWT_TOKEN_KEY)
+  localStorage.removeItem(JWT_EXPIRES_KEY)
+}
+
+/** 저장된 JWT 토큰 반환 (만료 시 null) */
+export function getToken(): string | null {
+  if (typeof window === 'undefined') return null
+  const token = localStorage.getItem(JWT_TOKEN_KEY)
+  const expiresAt = localStorage.getItem(JWT_EXPIRES_KEY)
+  if (!token || !expiresAt) return null
+  // 만료 1분 전부터 만료로 처리 (클록 오차 보정)
+  if (new Date(expiresAt).getTime() - Date.now() < 60_000) {
+    removeToken()
+    return null
+  }
+  return token
+}
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -11,6 +41,28 @@ const apiClient = axios.create({
   },
   timeout: 10000, // 10초 타임아웃 - 무한 대기 방지
 })
+
+// 요청 인터셉터 - JWT 토큰이 있으면 Authorization 헤더 자동 첨부
+apiClient.interceptors.request.use((config) => {
+  const token = getToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+// 응답 인터셉터 - 401 Unauthorized 시 로그인 페이지로 리다이렉트
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      // 토큰 삭제 후 로그인 페이지로 이동
+      removeToken()
+      window.location.replace('/admin/login')
+    }
+    return Promise.reject(error)
+  }
+)
 
 // 게임 목록 조회
 export async function fetchGames(params: {
@@ -146,4 +198,16 @@ export async function collectGames(maxCount = 10): Promise<void> {
   if (!data.success) {
     throw new Error(data.error ?? '데이터 수집에 실패했습니다.')
   }
+}
+
+// 관리자 로그인 - JWT 토큰 발급 및 저장
+export async function adminLogin(username: string, password: string): Promise<void> {
+  const { data } = await apiClient.post<ApiResponse<LoginResponse>>('/api/admin/login', {
+    username,
+    password,
+  })
+  if (!data.success || !data.data) {
+    throw new Error(data.error ?? '로그인에 실패했습니다.')
+  }
+  saveToken(data.data)
 }

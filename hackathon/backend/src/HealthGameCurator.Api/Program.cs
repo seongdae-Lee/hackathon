@@ -1,3 +1,4 @@
+using System.Text;
 using FluentValidation;
 using HealthGameCurator.Api.Middleware;
 using HealthGameCurator.Application.DTOs;
@@ -7,7 +8,9 @@ using HealthGameCurator.Application.Validators;
 using HealthGameCurator.Infrastructure.Data;
 using HealthGameCurator.Infrastructure.Repositories;
 using HealthGameCurator.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 // Serilog 설정 - 구조화된 로깅
@@ -53,6 +56,29 @@ try
     builder.Services.AddScoped<IValidator<CreateGameRequest>, CreateGameRequestValidator>();
     builder.Services.AddScoped<IValidator<UpdateGameRequest>, UpdateGameRequestValidator>();
 
+    // JWT 인증 설정
+    var jwtSecret = builder.Configuration["Jwt:Secret"]
+        ?? "HealthGameCurator-DefaultDevSecret-ChangeInProd-32chars!";
+    var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "HealthGameCurator";
+    var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "HealthGameCuratorAdmin";
+
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtIssuer,
+                ValidAudience = jwtAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+                // 시계 오차 허용 범위 최소화 (보안 강화)
+                ClockSkew = TimeSpan.FromMinutes(1),
+            };
+        });
+
     // CORS - 환경변수 ALLOWED_ORIGINS로 허용 도메인 주입 (콤마 구분)
     var allowedOrigins = builder.Configuration["AllowedOrigins"]
         ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -88,7 +114,8 @@ try
     }
 
     app.UseCors("AllowFrontend");
-    app.UseAuthorization();
+    app.UseAuthentication();  // JWT 토큰 파싱
+    app.UseAuthorization();   // [Authorize] 적용
     app.MapControllers();
 
     Log.Information("헬스케어 게이미피케이션 큐레이터 API 시작");

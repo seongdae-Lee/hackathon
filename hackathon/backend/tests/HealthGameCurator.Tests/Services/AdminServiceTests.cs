@@ -4,6 +4,7 @@ using HealthGameCurator.Application.Services;
 using HealthGameCurator.Application.Validators;
 using HealthGameCurator.Application.Interfaces;
 using HealthGameCurator.Domain.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -22,7 +23,17 @@ public class AdminServiceTests
     {
         _mockRepository = new Mock<IGameRepository>();
         _mockLogger = new Mock<ILogger<AdminService>>();
-        _sut = new AdminService(_mockRepository.Object, _mockLogger.Object);
+
+        // JWT 설정 Mock - 테스트에서 LoginAsync를 호출하지 않으므로 최소 설정
+        var mockConfig = new Mock<IConfiguration>();
+        mockConfig.Setup(c => c["Jwt:Secret"]).Returns("TestSecret-MinLength32CharsRequired!!");
+        mockConfig.Setup(c => c["Jwt:Issuer"]).Returns("HealthGameCurator");
+        mockConfig.Setup(c => c["Jwt:Audience"]).Returns("HealthGameCuratorAdmin");
+        mockConfig.Setup(c => c["Jwt:ExpiresInMinutes"]).Returns("480");
+        mockConfig.Setup(c => c["AdminCredentials:Username"]).Returns("admin");
+        mockConfig.Setup(c => c["AdminCredentials:PasswordHash"]).Returns("$2a$11$e9VgmT.KdEMB3WkSsjEbTexq6A1D8aFBj4Piw.lPhosTIwGm6KU9y");
+
+        _sut = new AdminService(_mockRepository.Object, _mockLogger.Object, mockConfig.Object);
         _createValidator = new CreateGameRequestValidator();
         _updateValidator = new UpdateGameRequestValidator();
     }

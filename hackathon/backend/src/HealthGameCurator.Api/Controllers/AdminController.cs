@@ -1,15 +1,17 @@
 using FluentValidation;
 using HealthGameCurator.Application.DTOs;
 using HealthGameCurator.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthGameCurator.Api.Controllers;
 
 /// <summary>
-/// 관리자 API 컨트롤러 - 통계, 게임 CRUD, AI 분석 트리거, 데이터 수집
+/// 관리자 API 컨트롤러 - JWT 인증 필수 (로그인 엔드포인트 제외)
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin")]
 public class AdminController : ControllerBase
 {
     private readonly IGameService _gameService;
@@ -30,6 +32,23 @@ public class AdminController : ControllerBase
         _adminService = adminService;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
+    }
+
+    /// <summary>
+    /// 관리자 로그인 - JWT 토큰 발급 (인증 불필요)
+    /// </summary>
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<LoginResponse>>> Login([FromBody] LoginRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            return BadRequest(ApiResponse<LoginResponse>.Fail("아이디와 비밀번호를 입력해주세요.", "INVALID_INPUT"));
+
+        var result = await _adminService.LoginAsync(request);
+        if (result is null)
+            return Unauthorized(ApiResponse<LoginResponse>.Fail("아이디 또는 비밀번호가 올바르지 않습니다.", "INVALID_CREDENTIALS"));
+
+        return Ok(ApiResponse<LoginResponse>.Ok(result));
     }
 
     /// <summary>
